@@ -68,9 +68,11 @@ class MainWindow(QMainWindow):
 
     def create_scroll_bar(self, canvas, categories, axis, main_layout, categoryType, dropdownSelection=None):
         xmin, graph_gap = self.calculate_scrollbar_dimensions(axis)
+        self.focalLengthScrollbar = QScrollBar(self)
+        self.focalLengthScrollbar.hide()
         if categoryType == focalLengthCategory:
-            self.focalLengthScrollbar = QScrollBar(self)
             if len(categories) >= focalLengthScrollbarThreshold:
+                self.focalLengthScrollbar.show()
                 # Add a horizontal scrollbar for the focal length plot
                 self.focalLengthScrollbar.setOrientation(1)  # Horizontal orientation
                 self.focalLengthScrollbar.setMaximum(int(len(categories)) * 2)  # Adjust this based on your content
@@ -86,14 +88,15 @@ class MainWindow(QMainWindow):
             main_layout.addWidget(self.lensScrollbar)
 
     def update_scroll(self, canvas, scrollbar, scrollbar_value, categories, axis, xmin, graph_gap, categoryType, lensDropdownSelection=None):
+        
         if lensDropdownSelection:
             categories = tuple(category for category in self.focalLengthsByLens[lensDropdownSelection])
-            self.lensScrollbar.setMaximum(int(len(categories)) * 2)  # Adjust this based on your content
-            if len(categories) >= lensScrollbarThreshold:
-                self.lensScrollbar.show()
+            
+            if len(categories) >= focalLengthScrollbarThreshold:
+                self.focalLengthScrollbar.show()
             else:
-                self.lensScrollbar.hide()
-
+                self.focalLengthScrollbar.hide()
+        self.focalLengthScrollbar.setMaximum(int(len(categories)) * 2)  # Adjust this based on your content
         max_scroll = scrollbar.maximum()
         total_width = graph_gap - barWidthByCategory[categoryType]/len(categories)
 
@@ -118,6 +121,7 @@ class MainWindow(QMainWindow):
         self.lens_selection_dropdown.setCurrentText(defaultSelectionDropdownSelection)
         self.lens_selection_dropdown.addItems(sorted(list(lensDict.keys())))
         self.lens_selection_dropdown.currentIndexChanged.connect(lambda: self.focal_length_plot.update_plot(self.lens_selection_dropdown.currentText(), self.ordering_dropdown.currentText()))
+        self.lens_selection_dropdown.currentIndexChanged.connect(lambda: self.update_scroll(canvas, scrollbar, scrollbar_value, categories, axis, xmin, graph_gap, categoryType, self.lens_selection_dropdown.currentText()))
 
     def create_ordering_dropdown(self):
         self.ordering_dropdown = QComboBox()
