@@ -19,6 +19,7 @@ lensByFocalLength = {} # {focal length:{lens: count}}
 lensCount = {} # {lens: count}
 
 def checkLens(lens, focalLength):
+    lens = lens.strip('\x00')
     if lens in focalLengthsByLens:
         lensCount[lens] += 1
         if focalLength in focalLengthsByLens[lens]:
@@ -68,7 +69,7 @@ def searchImages(folder_path):
                 pass
 
 if __name__ == "__main__":
-    folder_path = 'E:\\Pictures\\Photos\\2023'
+    folder_path = 'E:\\Pictures\\Photos\\2024'
     searchImages(folder_path)
     if len(focalLengthsByLens.items()) > 0:
         app = QApplication(sys.argv)

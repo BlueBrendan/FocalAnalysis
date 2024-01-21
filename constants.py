@@ -1,7 +1,7 @@
 lensModelExif = 42036
 focalLengthIn35mmExif = 41989
 
-focalLengthChartTitle = 'Focal Length'
+focalLengthChartTitle = 'Count By Focal Length'
 focalLengthChartXLabel = 'Focal Length (mm)'
 focalLengthChartYLabel = 'Count'
 defaultBarGraphColor = (0.122, 0.467, 0.706, 1.0)
@@ -15,6 +15,15 @@ imageCountDropdownSelection = "Image Count"
 lensOrderingDropdownSortByLens = "Lens"
 lensOrderingDropdownSortByImageCount = "Image Count"
 
-lensChartTitle = 'Lens'
+lensChartTitle = 'Count By Lens'
 lensChartXLabel = 'Lens'
 lensChartYLabel = 'Count'
+
+focalLengthCategory = 'FocalLength'
+lensCategory = 'Lens'
+barWidthByCategory = {
+    focalLengthCategory: 1000,
+    lensCategory: 200
+}
+focalLengthScrollbarThreshold = 20
+lensScrollbarThreshold = 5
