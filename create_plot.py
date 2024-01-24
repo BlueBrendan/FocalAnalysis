@@ -95,6 +95,7 @@ class CreatePlot():
         self.canvas.draw()
 
     def on_span_select(self, xmin, xmax):
+        # TODO: Add ctrl+ feature to allow for additive selections
         if xmin == xmax:
             for bar in self.bars:
                 bar.set_facecolor(defaultBarGraphColor)
@@ -123,8 +124,10 @@ class CreatePlot():
         selected_percentage = (selected_values/self.sum) * 100
         if selected_percentage == 100:
             self.image_count.set_text(f"Selected Images: {selected_values} ({selected_percentage}%)")
-        else:
+        elif selected_percentage != 0:
             self.image_count.set_text(f"Selected Images: {selected_values} ({selected_percentage:.2f}%)")
+        else:
+            self.image_count.set_text(f"Total Images: {self.sum}")
 
         # Update the color of the selected bars
         for i, bar in enumerate(self.bars):
