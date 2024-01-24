@@ -119,8 +119,12 @@ class CreatePlot():
         )[0]
 
         # Calculate and display the sum of values inside the selection
-        selected_values = [self.values[i] for i in selected_indices]
-        self.image_count.set_text(f"Selected Images: {sum(selected_values)}")
+        selected_values = sum([self.values[i] for i in selected_indices])
+        selected_percentage = (selected_values/self.sum) * 100
+        if selected_percentage == 100:
+            self.image_count.set_text(f"Selected Images: {selected_values} ({selected_percentage}%)")
+        else:
+            self.image_count.set_text(f"Selected Images: {selected_values} ({selected_percentage:.2f}%)")
 
         # Update the color of the selected bars
         for i, bar in enumerate(self.bars):
