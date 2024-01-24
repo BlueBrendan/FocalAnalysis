@@ -23,7 +23,15 @@ focalLengthCategory = 'FocalLength'
 lensCategory = 'Lens'
 barWidthByCategory = {
     focalLengthCategory: 1000,
-    lensCategory: 200
+    lensCategory: 400
 }
 focalLengthScrollbarThreshold = 20
 lensScrollbarThreshold = 5
+
+scrollbar_thresholds = {
+    focalLengthCategory: 20,
+    lensCategory: 5,
+}
+
+# Screen Properties
+screen_height_percentage = 0.75

@@ -1,7 +1,6 @@
 import numpy as np
-from PyQt5.QtWidgets import QScrollBar, QSizePolicy
 from constants import defaultSelectionDropdownSelection, imageCountDropdownSelection, defaultBarGraphColor
-from matplotlib.widgets import SpanSelector, Slider
+from matplotlib.widgets import SpanSelector
 from matplotlib.patches import Rectangle
 
 class CreatePlot():
@@ -25,7 +24,7 @@ class CreatePlot():
         
         self.create_annotations(values, self.total_bar_width, self.initial_x)
         self.set_axis(self.total_bar_width, self.initial_x, categories, x)
-        self.update_plot(lensDropdownValue, orderingDropdownValue)
+        self.update_plot(self.focalLengthsByLens, self.focalLengths, lensDropdownValue, orderingDropdownValue)
         
         # Add span selector for bar selection
         self.span_selector = SpanSelector(ax, self.on_span_select, 'horizontal', useblit=True)
@@ -65,15 +64,16 @@ class CreatePlot():
             annotation = self.ax.text(i * total_bar_width + initial_x, v, str(v), ha='center', va='bottom')
             self.text_annotations.append(annotation)
 
-    def update_plot(self, lensDropdownText, orderingDropdownText):
+    def update_plot(self, dataset, alternative_dataset, dropdown_text, orderingDropdownText):
         for bar in self.bars:
             bar.remove()
         for annotation in self.text_annotations:
             annotation.remove()
-        if lensDropdownText == defaultSelectionDropdownSelection:
-            lens_data = self.focalLengths
-        else:
-            lens_data = self.focalLengthsByLens[lensDropdownText]
+        lens_data = alternative_dataset
+        if dropdown_text != defaultSelectionDropdownSelection:
+            lens_data = dataset[dropdown_text]
+
+        self.ax.autoscale()
 
         self.sortedFocalLengthDict = sorted(lens_data.items())
         categories, values = zip(*self.sortedFocalLengthDict)
@@ -87,7 +87,6 @@ class CreatePlot():
         # Create a bar chart
         x = np.arange(len(categories))  # x-axis locations for the bars
         self.bars = self.ax.bar([i * total_bar_width + initial_x for i in x], values, width=self.bar_width, label='Values', facecolor=defaultBarGraphColor, zorder=2)
-
         # Set x-axis tick positions and labels
         self.ax.set_xticks([i * total_bar_width + initial_x for i in x])
         self.ax.set_xticklabels(categories)
