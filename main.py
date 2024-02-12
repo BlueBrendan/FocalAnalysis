@@ -69,7 +69,7 @@ def searchImages(folder_path):
                 pass
 
 if __name__ == "__main__":
-    folder_path = 'E:\\Pictures\\Photos\\2024'  
+    folder_path = 'E:\\Pictures\\Photos\\2023'  
     searchImages(folder_path)
     if len(focalLengthsByLens.items()) > 0:
         app = QApplication(sys.argv)

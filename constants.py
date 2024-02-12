@@ -26,11 +26,10 @@ barWidthByCategory = {
     lensCategory: 400
 }
 focalLengthScrollbarThreshold = 20
-lensScrollbarThreshold = 5
 
 scrollbar_thresholds = {
     focalLengthCategory: 20,
-    lensCategory: 5,
+    lensCategory: 6,
 }
 
 # Screen Properties

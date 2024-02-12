@@ -55,24 +55,25 @@ class CreatePlot():
                      fontsize=12, ha='center', va='center')
 
     def create_annotations(self, values, total_bar_width, initial_x):
-        self.text_annotations = []
+        self.annotations = []
         self.sum = 0
 
-        # Populate the text_annotations list with initial annotations
+        # Populate the annotations list with initial annotations
         for i, v in enumerate(values):
             self.sum += v
-            annotation = self.ax.text(i * total_bar_width + initial_x, v, str(v), ha='center', va='bottom')
-            self.text_annotations.append(annotation)
+            bar_x = i * total_bar_width + initial_x
+            bar_y = v
+            annotation = self.ax.annotate(str(v), xy=(bar_x, bar_y), xytext=(0, 1), textcoords="offset points", ha='center', va='bottom',fontsize=11)
+            self.annotations.append(annotation)
 
     def update_plot(self, dataset, alternative_dataset, dropdown_text, orderingDropdownText):
         for bar in self.bars:
             bar.remove()
-        for annotation in self.text_annotations:
+        for annotation in self.annotations:
             annotation.remove()
         lens_data = alternative_dataset
         if dropdown_text != defaultSelectionDropdownSelection:
             lens_data = dataset[dropdown_text]
-
         self.ax.autoscale()
 
         self.sortedFocalLengthDict = sorted(lens_data.items())

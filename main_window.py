@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QApplication, QComboBox, QSpacerItem, QSizePolicy, QScrollBar
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
-from constants import defaultSelectionDropdownSelection, defaultOrderingDropdownSelection, imageCountDropdownSelection, lensOrderingDropdownSortByLens, lensOrderingDropdownSortByImageCount, focalLengthChartTitle, focalLengthChartXLabel, focalLengthChartYLabel, lensChartTitle, lensChartXLabel, lensChartYLabel, focalLengthScrollbarThreshold, lensScrollbarThreshold, focalLengthCategory, lensCategory, barWidthByCategory, screen_height_percentage, scrollbar_thresholds
+from constants import defaultSelectionDropdownSelection, defaultOrderingDropdownSelection, imageCountDropdownSelection, lensOrderingDropdownSortByLens, lensOrderingDropdownSortByImageCount, focalLengthChartTitle, focalLengthChartXLabel, focalLengthChartYLabel, lensChartTitle, lensChartXLabel, lensChartYLabel, focalLengthScrollbarThreshold, focalLengthCategory, lensCategory, barWidthByCategory, screen_height_percentage, scrollbar_thresholds
 from create_plot import CreatePlot
 
 class MainWindow(QMainWindow):
@@ -24,7 +24,7 @@ class MainWindow(QMainWindow):
 
         self.fig_focal_length, self.ax_focal_length = plt.subplots()
         plt.subplots_adjust(left=0.05, right=0.975, top=0.83, bottom=0.125)
-        plt.margins(x=0.005)
+        plt.margins(x=0.005,y=0.1)
         self.canvas_focal_length = FigureCanvas(self.fig_focal_length)
         main_layout.addWidget(self.canvas_focal_length, 20)
 
@@ -50,7 +50,7 @@ class MainWindow(QMainWindow):
         # Create the figure and axis objects
         self.fig_lens, self.axis_lens = plt.subplots()
         plt.subplots_adjust(left=0.05, right=0.975, top=0.83, bottom=0.125)
-        plt.margins(x=0.02)
+        plt.margins(x=0.02,y=0.1)
         
         # Create a canvas to display the plot
         self.canvas_lens = FigureCanvas(self.fig_lens)
@@ -80,14 +80,14 @@ class MainWindow(QMainWindow):
 
     def create_scroll_bar(self, canvas, categories, axis, main_layout, categoryType):
         xmin, graph_gap = self.calculate_scrollbar_dimensions(axis)
-        if categoryType == focalLengthCategory and len(categories) >= focalLengthScrollbarThreshold:
+        if categoryType == focalLengthCategory and len(categories) >= scrollbar_thresholds[categoryType]:
             self.focalLengthScrollbar.show()
             self.focalLengthScrollbar.setOrientation(1)  # Horizontal orientation
             self.focalLengthScrollbar.setMaximum(int(len(categories)) * 2)  # Adjust this based on your content
             self.focalLengthScrollbar.valueChanged.connect(lambda value: self.update_scroll(canvas, self.focalLengthScrollbar, value, categories, axis, xmin, graph_gap, categoryType))
             self.update_scroll(canvas, self.focalLengthScrollbar, self.focalLengthScrollbar.value(), categories, axis, xmin, graph_gap, categoryType)
             main_layout.addWidget(self.focalLengthScrollbar)
-        elif categoryType == lensCategory and len(categories) >= lensScrollbarThreshold:
+        elif categoryType == lensCategory and len(categories) >= scrollbar_thresholds[categoryType]:
             self.lensScrollbar.show()
             self.lensScrollbar.setOrientation(1)  # Horizontal orientation
             self.lensScrollbar.setMaximum(int(len(categories)) * 2)  # Adjust this based on your content
