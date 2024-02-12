@@ -1,7 +1,25 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QApplication, QComboBox, QSpacerItem, QSizePolicy, QScrollBar
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
-from constants import defaultSelectionDropdownSelection, defaultOrderingDropdownSelection, imageCountDropdownSelection, lensOrderingDropdownSortByLens, lensOrderingDropdownSortByImageCount, focalLengthChartTitle, focalLengthChartXLabel, focalLengthChartYLabel, lensChartTitle, lensChartXLabel, lensChartYLabel, focalLengthScrollbarThreshold, focalLengthCategory, lensCategory, barWidthByCategory, screen_height_percentage, scrollbar_thresholds
+from constants import (
+    defaultSelectionDropdownSelection,
+    defaultOrderingDropdownSelection,
+    imageCountDropdownSelection,
+    lensOrderingDropdownSortByLens,
+    lensOrderingDropdownSortByImageCount,
+    focalLengthChartTitle,
+    focalLengthChartXLabel,
+    focalLengthChartYLabel,
+    lensChartTitle,
+    lensChartXLabel,
+    lensChartYLabel,
+    focalLengthCategory,
+    lensCategory,
+    barWidthByCategory,
+    screen_height_percentage,
+    scrollbar_thresholds,
+    plot_margins
+)
 from create_plot import CreatePlot
 
 class MainWindow(QMainWindow):
@@ -24,7 +42,7 @@ class MainWindow(QMainWindow):
 
         self.fig_focal_length, self.ax_focal_length = plt.subplots()
         plt.subplots_adjust(left=0.05, right=0.975, top=0.83, bottom=0.125)
-        plt.margins(x=0.005,y=0.1)
+        plt.margins(x=plot_margins['focal_length_plot_x_spacing'])
         self.canvas_focal_length = FigureCanvas(self.fig_focal_length)
         main_layout.addWidget(self.canvas_focal_length, 20)
 
@@ -50,7 +68,7 @@ class MainWindow(QMainWindow):
         # Create the figure and axis objects
         self.fig_lens, self.axis_lens = plt.subplots()
         plt.subplots_adjust(left=0.05, right=0.975, top=0.83, bottom=0.125)
-        plt.margins(x=0.02,y=0.1)
+        plt.margins(x=plot_margins['lens_plot_x_spacing'])
         
         # Create a canvas to display the plot
         self.canvas_lens = FigureCanvas(self.fig_lens)
@@ -115,7 +133,6 @@ class MainWindow(QMainWindow):
 
         # Calculate new x-axis limits for the focal length plot
         xlim_start = scrollbar_value / max_scroll * total_width + xmin
-        # Problem is the way xlim_end is calculated - it should never be greater than ~38.3ish
         xlim_end = xlim_start + barWidthByCategory[categoryType]/len(categories)
         axis.set_xlim(xlim_start, xlim_end)
         canvas.draw()

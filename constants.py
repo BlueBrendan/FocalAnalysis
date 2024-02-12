@@ -25,11 +25,21 @@ barWidthByCategory = {
     focalLengthCategory: 1000,
     lensCategory: 400
 }
-focalLengthScrollbarThreshold = 20
 
 scrollbar_thresholds = {
     focalLengthCategory: 20,
     lensCategory: 6,
+}
+
+# Plot properties
+plot_margins = {
+    'focal_length_plot_x_spacing': 0.005,
+    'lens_plot_x_spacing': 0.02
+}
+
+y_axis_multipliers = {
+    'single_value': 2,
+    'multi_value': 1.1
 }
 
 # Screen Properties

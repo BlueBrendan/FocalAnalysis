@@ -1,5 +1,10 @@
 import numpy as np
-from constants import defaultSelectionDropdownSelection, imageCountDropdownSelection, defaultBarGraphColor
+from constants import (
+    defaultSelectionDropdownSelection, 
+    imageCountDropdownSelection, 
+    defaultBarGraphColor,
+    y_axis_multipliers
+)   
 from matplotlib.widgets import SpanSelector
 from matplotlib.patches import Rectangle
 
@@ -21,7 +26,6 @@ class CreatePlot():
         self.bars, self.annotations = [], []
         self.selection_sum_text = self.ax.text(0.05, 0.95, "", transform=self.ax.transAxes,
                                                fontsize=12, ha='center', va='top')
-        
         self.create_annotations(values, self.total_bar_width, self.initial_x)
         self.set_axis(self.total_bar_width, self.initial_x, categories, x)
         self.update_plot(self.focalLengthsByLens, self.focalLengths, lensDropdownValue, orderingDropdownValue)
@@ -31,11 +35,10 @@ class CreatePlot():
         self.selection_rectangle, self.selection_start = None, None
 
     def set_spacing(self, categories):
-        self.bar_width = max(45/len(categories), 0.50)
-        self.bar_spacing = max(30/len(categories), 0.35)
-        num_categories = len(categories)
+        self.bar_width = 40/len(categories)
+        self.bar_spacing = 25/len(categories)
         total_bar_width = self.bar_width + self.bar_spacing
-        total_width = num_categories * total_bar_width
+        total_width = len(categories) * total_bar_width
         excess_space = (1 - total_width) / 2
         initial_x = excess_space + 0.5 * total_bar_width
         return total_bar_width, initial_x
@@ -92,6 +95,10 @@ class CreatePlot():
         self.ax.set_xticks([i * total_bar_width + initial_x for i in x])
         self.ax.set_xticklabels(categories)
         self.create_annotations(values, total_bar_width, initial_x)
+         
+        y_axis_multiplier = y_axis_multipliers['single_value'] if len(categories) == 1 else y_axis_multipliers['multi_value']
+        self.ax.set_ylim(0, max(values) * y_axis_multiplier) # Set y-axis to halfway point for primes and lenses with one focal length
+
         self.image_count.set_text(f"Total Images: {self.sum}")
         self.canvas.draw()
 
