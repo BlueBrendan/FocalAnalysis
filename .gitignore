@@ -1,6 +1,7 @@
 # Ignore virtual environment directories
 env/
 venv/
+.vscode/
 
 # Ignore Python cache directories
 __pycache__/
