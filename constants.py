@@ -1,3 +1,10 @@
+folder_path = ''
+
+focalLengthsByLens = {} # {lens:{focalLength: count}}
+focalLengths = {} # {focal length: count}
+lensByFocalLength = {} # {focal length:{lens: count}}
+lensCount = {} # {lens: count}
+
 lensModelExif = 42036
 focalLengthIn35mmExif = 41989
 
@@ -7,7 +14,7 @@ focalLengthChartYLabel = 'Count'
 defaultBarGraphColor = (0.122, 0.467, 0.706, 1.0)
 
 defaultSelectionDropdownSelection = "All"
-defaultOrderingDropdownSelection = "Focal Length"
+defaultFocalLengthOrderingDropdownSelection = "Focal Length"
 defaultLensOrderingDropdownSelection = "Lens"
 imageCountDropdownSelection = "Image Count"
 
@@ -19,15 +26,19 @@ lensChartTitle = 'Count By Lens'
 lensChartXLabel = 'Lens'
 lensChartYLabel = 'Count'
 
+# CATEGORIES
 focalLengthCategory = 'FocalLength'
 lensCategory = 'Lens'
+
+paddingConstant = 20
+
 barWidthByCategory = {
-    focalLengthCategory: 1000,
+    focalLengthCategory: 400,
     lensCategory: 400
 }
 
 scrollbar_thresholds = {
-    focalLengthCategory: 20,
+    focalLengthCategory: 30,
     lensCategory: 6,
 }
 
