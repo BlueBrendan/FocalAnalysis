@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QPainter, QColor, QFont, QFontMetrics
 from PyQt5.QtCore import Qt, QRect, QPoint
-from constants import focalLengthCategory, paddingConstant
+from constants import focalLengthCategory, focalLengthDistributionPaddingConstant, lensDistributionGraphPaddingConstant
 from util import format_focal_length
 
 class BarGraphWidget(QWidget):
@@ -33,11 +33,10 @@ class BarGraphWidget(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-
         bar_width = 80 if self.category == focalLengthCategory else 200
         bar_spacing = 20 if self.category == focalLengthCategory else 200
         max_height = max(self.values)
-        available_height = self.height() - 120  # Leave some margin
+        available_height = self.height() - 100  # Leave some margin
         if max_height > 0:
             height_scaling = available_height / max_height
         else:
@@ -49,6 +48,7 @@ class BarGraphWidget(QWidget):
         bar_label_font.setBold(True)
         x_axis_font = QFont("Arial", 12)
         x_axis_font.setBold(False)
+        paddingConstant = focalLengthDistributionPaddingConstant if self.category == focalLengthCategory else lensDistributionGraphPaddingConstant
         for i, value in enumerate(self.values):
             x = i * (bar_width + bar_spacing) + paddingConstant
             height = int(value * height_scaling)
@@ -73,10 +73,9 @@ class BarGraphWidget(QWidget):
             value_text_x = int(x + (bar_width - value_text_width) / 2)
             value_text_y = int(y - 10)
             painter.drawText(value_text_x, value_text_y, value_text)
-
             # Label category at x-axis
             category_text = format_focal_length(self.categories[i]) if type(self.categories[i]) == float else self.categories[i]
-            category_text_rect = QRect(x, self.height() - 50, bar_width, 40)
+            category_text_rect = QRect(x-paddingConstant, self.height() - 50, bar_width + (paddingConstant * 2), 40)
             painter.setFont(x_axis_font)
             wrapped_text = QFontMetrics(x_axis_font).elidedText(category_text, Qt.TextElideMode.ElideNone, category_text_rect.width())
             painter.drawText(category_text_rect, Qt.AlignCenter | Qt.TextWordWrap, wrapped_text )

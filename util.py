@@ -48,7 +48,7 @@ def convert_focal_length(focal_length_tag):
     
 
 def searchImages(folder_path):
-    valid_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.raw', '.nef']  # Add more if needed
+    valid_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff']  # Add more if needed
     for root, _, files in os.walk(folder_path):
         for file_name in files:
             try:

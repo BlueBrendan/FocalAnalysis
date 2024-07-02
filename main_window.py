@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QScrollArea, QPushButton, QFileDialog, QLabel, QApplication, QComboBox, QSpacerItem, QSizePolicy
 from PyQt5.QtGui import QFont
+from PyQt5.QtCore import Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
 from constants import (
@@ -8,23 +9,10 @@ from constants import (
     defaultFocalLengthOrderingDropdownSelection,
     imageCountDropdownSelection,
     defaultLensOrderingDropdownSelection,
-    lensOrderingDropdownSortByLens,
-    lensOrderingDropdownSortByImageCount,
-    focalLengthChartTitle,
-    focalLengthChartXLabel,
-    focalLengthChartYLabel,
-    lensChartTitle,
-    lensChartXLabel,
-    lensChartYLabel,
     focalLengthCategory,
     lensCategory,
-    barWidthByCategory,
-    screen_height_percentage,
-    scrollbar_thresholds,
-    plot_margins
 )
 from BarGraphWidget import BarGraphWidget
-from create_plot import CreatePlot
 from util import searchImages, format_focal_length
 from PyQt5.QtCore import Qt
 from os.path import expanduser
@@ -88,6 +76,7 @@ class MainWindow(QMainWindow):
 
         self.fl_distribution_scroll_area = QScrollArea()
         self.fl_distribution_scroll_area.setWidgetResizable(True)
+        self.fl_distribution_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         main_layout.addWidget(self.fl_distribution_scroll_area)
 
         self.fl_distribution_graph = BarGraphWidget(self.fl_distribution_categories, self.fl_distribution_values, self.fl_distribution_subtitle_label, self.fl_distribution_total_image_count, focalLengthCategory)
@@ -99,7 +88,7 @@ class MainWindow(QMainWindow):
 
         # Create a horizontal layout for the dropdowns and current directory
         self.lens_distribution_top_controls = QHBoxLayout()
-        self.lens_distribution_top_controls.setContentsMargins(0, 0, 0, 0)
+        self.lens_distribution_top_controls.setContentsMargins(0, 10, 0, 0)
         main_layout.addLayout(self.lens_distribution_top_controls)
 
         self.lens_distribution_category_dropdown = QComboBox()
@@ -120,6 +109,7 @@ class MainWindow(QMainWindow):
 
         self.lens_distribution_scroll_area = QScrollArea()
         self.lens_distribution_scroll_area.setWidgetResizable(True)
+        self.lens_distribution_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         main_layout.addWidget(self.lens_distribution_scroll_area)
 
         self.lens_distribution_graph = BarGraphWidget(self.lens_distribution_categories, self.lens_distribution_values, self.lens_distribution_subtitle_label, self.fl_distribution_total_image_count, lensCategory)
@@ -168,7 +158,7 @@ class MainWindow(QMainWindow):
         if dropdown_selection == defaultFocalLengthOrderingDropdownSelection:
             sorted_pairs = sorted(zip(self.fl_distribution_categories, self.fl_distribution_values))
             self.fl_distribution_categories, self.fl_distribution_values = zip(*sorted_pairs)
-        elif dropdown_selection == lensOrderingDropdownSortByImageCount:
+        elif dropdown_selection == imageCountDropdownSelection:
             sorted_pairs = sorted(zip(self.fl_distribution_values, self.fl_distribution_categories), reverse=True)
             self.fl_distribution_values, self.fl_distribution_categories = zip(*sorted_pairs)
         self.fl_distribution_graph.setData(self.fl_distribution_categories, self.fl_distribution_values, self.fl_distribution_total_image_count)
@@ -187,7 +177,7 @@ class MainWindow(QMainWindow):
         if dropdown_selection == defaultLensOrderingDropdownSelection:
             sorted_pairs = sorted(zip(self.lens_distribution_categories, self.lens_distribution_values))
             self.lens_distribution_categories, self.lens_distribution_values = zip(*sorted_pairs)
-        elif dropdown_selection == lensOrderingDropdownSortByImageCount:
+        elif dropdown_selection == imageCountDropdownSelection:
             sorted_pairs = sorted(zip(self.lens_distribution_values, self.lens_distribution_categories), reverse=True)
             self.lens_distribution_values, self.lens_distribution_categories = zip(*sorted_pairs)
         self.lens_distribution_graph.setData(self.lens_distribution_categories, self.lens_distribution_values, self.lens_distribution_total_image_count)
