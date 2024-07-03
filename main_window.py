@@ -14,6 +14,7 @@ from constants import (
     graph_font
 )
 from BarGraphWidget import BarGraphWidget
+from CustomScrollArea import CustomScrollArea
 from util import searchImages, format_focal_length
 from PyQt5.QtCore import Qt
 from os.path import expanduser
@@ -81,12 +82,12 @@ class MainWindow(QMainWindow):
         self.fl_distribution_subtitle_label.setFont(subtitle_font)
         main_layout.addWidget(self.fl_distribution_subtitle_label)
 
-        self.fl_distribution_scroll_area = QScrollArea()
+        self.fl_distribution_scroll_area = CustomScrollArea()
         self.fl_distribution_scroll_area.setWidgetResizable(True)
         self.fl_distribution_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         main_layout.addWidget(self.fl_distribution_scroll_area)
 
-        self.fl_distribution_graph = BarGraphWidget(self.fl_distribution_categories, self.fl_distribution_values, self.fl_distribution_subtitle_label, self.fl_distribution_total_image_count, focalLengthCategory)
+        self.fl_distribution_graph = BarGraphWidget(self.fl_distribution_categories, self.fl_distribution_values, self.fl_distribution_subtitle_label, self.fl_distribution_total_image_count, focalLengthCategory, parent=self.fl_distribution_scroll_area)
         self.fl_distribution_scroll_area.setWidget(self.fl_distribution_graph)
 
         # Connect top control dropdowns to lambda functions
@@ -117,7 +118,7 @@ class MainWindow(QMainWindow):
         self.lens_distribution_subtitle_label.setFont(subtitle_font)
         main_layout.addWidget(self.lens_distribution_subtitle_label)
 
-        self.lens_distribution_scroll_area = QScrollArea()
+        self.lens_distribution_scroll_area = CustomScrollArea()
         self.lens_distribution_scroll_area.setWidgetResizable(True)
         self.lens_distribution_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         main_layout.addWidget(self.lens_distribution_scroll_area)

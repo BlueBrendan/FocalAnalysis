@@ -3,6 +3,7 @@ from PyQt5.QtGui import QPainter, QColor, QFont, QFontMetrics, QPen
 from PyQt5.QtCore import Qt, QRect, QPoint
 from constants import focalLengthCategory, lensCategory, graph_padding_constant, graph_font
 from util import format_focal_length
+from CustomScrollArea import CustomScrollArea
 
 class BarGraphWidget(QWidget):
     def __init__(self, categories, values, images_selection_text, total_image_count, category, parent=None):
@@ -153,3 +154,10 @@ class BarGraphWidget(QWidget):
             self.images_selection_text.setText(f"Images Selected: {total_selected_value}/{self.total_image_count} ({self.total_selected_percentage}%)")
             self.dragging = False
             self.update()
+
+    def wheelEvent(self, event):
+        sensitivity_factor = 2
+        delta = event.angleDelta().y() * sensitivity_factor
+        parent = self.parentWidget().parentWidget()
+        if parent and isinstance(parent, CustomScrollArea):
+            parent.scrollHorizontally(-delta)
