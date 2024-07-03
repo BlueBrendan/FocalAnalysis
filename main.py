@@ -1,5 +1,5 @@
 from PIL import Image
-
+import threading
 import sys
 from PyQt5.QtWidgets import QApplication, QFileDialog
 from main_window import MainWindow
@@ -8,15 +8,20 @@ from util import searchImages
 
 Image.MAX_IMAGE_PIXELS = 933120000
 
+def analyze_images(window):
+    searchImages(folder_path)
+    window.update_graphs(focalLengths, focalLengthsByLens, lensCount, lensByFocalLength)
 
 def main():
     app = QApplication(sys.argv)
     global folder_path
     folder_path = QFileDialog.getExistingDirectory(None, "Select Directory", 'E:\\Pictures\\Photos')
-    searchImages(folder_path)
-    if folder_path and len(focalLengthsByLens.items()) > 0:
-        window = MainWindow(focalLengths, focalLengthsByLens, lensCount, lensByFocalLength, folder_path)
+    if folder_path:
+        window = MainWindow(folder_path)
         window.showMaximized()
+        # Start the image analysis in a separate thread
+        analysis_thread = threading.Thread(target=analyze_images, args=(window,))
+        analysis_thread.start()
         sys.exit(app.exec_())
 
 if __name__ == "__main__":

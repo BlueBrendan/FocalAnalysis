@@ -14,7 +14,7 @@ class BarGraphWidget(QWidget):
         self.total_image_count = total_image_count
         self.category = category
         self.setMinimumHeight(400)
-        self.selected_bars = set()  # Use a set to maintain unique selected bars
+        self.selected_bars = set()
         self.bar_positions = []
         self.selection_rect = QRect()
         self.drag_start = QPoint()
@@ -26,15 +26,15 @@ class BarGraphWidget(QWidget):
         self.values = values
         self.total_image_count = total_image_count
         self.total_selected_percentage = 0
-        self.selected_bars = set() 
-        self.images_selection_text.setText(f"Images Selected: 0/{self.total_image_count} ({self.total_selected_percentage})%")
-        self.updateGeometry()  # Update widget geometry to fit new data
-        self.update()  # Trigger a repaint
+        self.selected_bars = set()
+        self.images_selection_text.setText(f"Images Selected: 0/{self.total_image_count} (0%)")
+        self.updateGeometry()
+        self.update()
 
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        max_height = max(self.values)
+        max_height = max(self.values) if len(self.values) > 0 else 0
         self.available_height = self.height() - 100  # Leave some margin
         self.height_scaling = self.available_height / max_height if max_height > 0 else 1
         self.bar_positions = []
@@ -48,19 +48,23 @@ class BarGraphWidget(QWidget):
         total_bar_width = self.available_width * 0.5
         total_bar_space = self.available_width - total_bar_width
         if self.category == focalLengthCategory:
-            if self.num_categories < 30:
+            if self.num_categories == 0:
+                self.bar_width, self.bar_spacing = 0, 0
+            elif self.num_categories < 30:
                 self.bar_width = total_bar_width / self.num_categories
                 self.bar_spacing = total_bar_space / self.num_categories
             else:
-                self.bar_width = 40
-                self.bar_spacing = 30
+                self.bar_width = 30
+                self.bar_spacing = 20
         elif self.category == lensCategory:
-            if self.num_categories < 7:
+            if self.num_categories == 0:
+                self.bar_width, self.bar_spacing = 0, 0
+            elif self.num_categories < 7:
                 self.bar_width = int(total_bar_width / self.num_categories)
                 self.bar_spacing = int(total_bar_space / self.num_categories)
             else:
                 self.bar_width = 350
-                self.bar_spacing = 200
+                self.bar_spacing = 150
         self.draw_gridlines(painter)
         self.draw_bars(painter)
         if self.dragging:
