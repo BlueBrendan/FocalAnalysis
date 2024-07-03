@@ -38,21 +38,25 @@ class MainWindow(QMainWindow):
 
         # Create a horizontal layout for the dropdowns and current directory
         self.fl_distribution_top_controls = QHBoxLayout()
-        self.fl_distribution_top_controls.setContentsMargins(15, 15, 0, 0)
+        self.fl_distribution_top_controls.setContentsMargins(15, 15, 15, 0)
         main_layout.addLayout(self.fl_distribution_top_controls)
 
         self.fl_distribution_category_dropdown = QComboBox()
+        self.fl_distribution_category_dropdown.setFont(self.normal_font)
         self.fl_distribution_ordering_dropdown = QComboBox()
+        self.fl_distribution_ordering_dropdown.setFont(self.normal_font)
         self.create_fl_distribution_top_controls(lensFocalLengthCountDict.keys())
+        self.fl_distribution_top_controls.addItem(QSpacerItem(20, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
-        # Add directory controls
+        # Directory controls
         self.current_dir_label = QLabel(f"Current Directory: {folder_path}")
         self.current_dir_label.setFont(self.normal_font)
+        self.current_dir_label.setContentsMargins(0, 0, 15, 0)
         change_dir_button = QPushButton("Change Directory")
+        change_dir_button.setFont(self.normal_font)
         change_dir_button.clicked.connect(self.change_directory)
         self.fl_distribution_top_controls.addWidget(self.current_dir_label)
         self.fl_distribution_top_controls.addWidget(change_dir_button)
-        self.fl_distribution_top_controls.addItem(QSpacerItem(20, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
         self.focalLengths = focalLengthCountDict
         self.focalLengthsByLens = lensFocalLengthCountDict

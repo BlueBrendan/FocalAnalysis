@@ -3,6 +3,7 @@ from PyQt5.QtGui import QPainter, QColor, QFont, QFontMetrics, QPen
 from PyQt5.QtCore import Qt, QRect, QPoint
 from constants import focalLengthCategory, focalLengthDistributionPaddingConstant, lensDistributionGraphPaddingConstant, graph_font
 from util import format_focal_length
+import math
 
 class BarGraphWidget(QWidget):
     def __init__(self, categories, values, images_selection_text, total_image_count, category, parent=None):
@@ -33,8 +34,8 @@ class BarGraphWidget(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        bar_width = 80 if self.category == focalLengthCategory else 200
-        bar_spacing = 20 if self.category == focalLengthCategory else 200
+        bar_width = 50 if self.category == focalLengthCategory else 200
+        bar_spacing = 15 if self.category == focalLengthCategory else 200
         max_height = max(self.values)
         available_height = self.height() - 100  # Leave some margin
         if max_height > 0:
@@ -127,8 +128,12 @@ class BarGraphWidget(QWidget):
                 if selection_area.intersects(rect):
                     selected_indices.add(i)
                     total_selected_value += self.values[i]
-            self.selected_bars = selected_indices
-            self.total_selected_percentage = round((total_selected_value/self.total_image_count) * 100,2) if total_selected_value > 0 else 0
+            if not event.modifiers() & Qt.ShiftModifier:
+                self.selected_bars = selected_indices
+            else:
+                self.selected_bars.update(selected_indices)
+            total_selected_value = sum(self.values[i] for i in self.selected_bars)
+            self.total_selected_percentage = round((total_selected_value / self.total_image_count) * 100, 2) if total_selected_value > 0 else 0
             self.images_selection_text.setText(f"Images Selected: {total_selected_value}/{self.total_image_count} ({self.total_selected_percentage}%)")
             self.dragging = False
             self.update()
