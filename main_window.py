@@ -41,17 +41,24 @@ class MainWindow(QMainWindow):
         self.fl_distribution_category_dropdown.setFont(self.normal_font)
         self.fl_distribution_ordering_dropdown = QComboBox()
         self.fl_distribution_ordering_dropdown.setFont(self.normal_font)
-        self.create_fl_distribution_top_controls([])
-        self.fl_distribution_top_controls.addItem(QSpacerItem(20, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
+        # Create dropdown labels
+        self.fl_distribution_categroy_dropdown_label = QLabel(f"{defaultLensOrderingDropdownSelection}:")
+        self.fl_distribution_categroy_dropdown_label.setFont(self.normal_font)
+        self.fl_distribution_ordering_dropdown_label = QLabel('Ordering:')
+        self.fl_distribution_ordering_dropdown_label.setFont(self.normal_font)
+        self.lens_distribution_categroy_dropdown_label = QLabel(f"{defaultFocalLengthOrderingDropdownSelection}:")
+        self.lens_distribution_categroy_dropdown_label.setFont(self.normal_font)
+        self.lens_distribution_ordering_dropdown_label = QLabel('Ordering:')
+        self.lens_distribution_ordering_dropdown_label.setFont(self.normal_font)
+        
         self.current_dir_label = QLabel(f"Current Directory: {folder_path}")
         self.current_dir_label.setFont(self.normal_font)
         self.current_dir_label.setContentsMargins(0, 0, 10, 0)
-        change_dir_button = QPushButton("Change Directory")
-        change_dir_button.setFont(self.normal_font)
-        change_dir_button.clicked.connect(self.change_directory)
-        self.fl_distribution_top_controls.addWidget(self.current_dir_label)
-        self.fl_distribution_top_controls.addWidget(change_dir_button)
+
+        self.change_dir_button = QPushButton("Change Directory")
+        self.change_dir_button.setFont(self.normal_font)
+        self.change_dir_button.clicked.connect(self.change_directory)
 
         self.fl_distribution_title_label = QLabel("Focal Length Distribution")
         self.fl_distribution_title_label.setAlignment(Qt.AlignCenter)
@@ -82,8 +89,6 @@ class MainWindow(QMainWindow):
         self.lens_distribution_category_dropdown.setFont(self.normal_font)
         self.lens_distribution_ordering_dropdown = QComboBox()
         self.lens_distribution_ordering_dropdown.setFont(self.normal_font)
-        self.create_lens_distribution_top_controls([])
-        self.lens_distribution_top_controls.addItem(QSpacerItem(20, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
         self.lens_distribution_title_label = QLabel("Lens Distribution")
         self.lens_distribution_title_label.setAlignment(Qt.AlignCenter)
@@ -119,6 +124,8 @@ class MainWindow(QMainWindow):
         self.lensImageCountDict = lensImageCountDict
         self.focalLengthLensDict = focalLengthLensDict
         self.sortedFocalLengthDict = sorted(self.focalLengths.items())
+        self.create_fl_distribution_top_controls(sorted(lensImageCountDict.keys()))
+        self.create_lens_distribution_top_controls(sorted(focalLengthLensDict.keys()))
         self.change_fl_distribution_category_dropdown()
         self.change_lens_distribution_category_dropdown()
 
@@ -127,28 +134,31 @@ class MainWindow(QMainWindow):
 
     def create_fl_distribution_top_controls(self, keys):
         self.fl_distribution_category_dropdown.addItem(defaultSelectionDropdownSelection)
+        self.fl_distribution_category_dropdown.addItems(list(keys))
         self.fl_distribution_category_dropdown.setCurrentText(defaultSelectionDropdownSelection)
-        self.fl_distribution_category_dropdown.addItems(list(map(str, sorted(keys))))
 
         self.fl_distribution_ordering_dropdown.addItem(imageCountDropdownSelection)
         self.fl_distribution_ordering_dropdown.addItem(defaultFocalLengthOrderingDropdownSelection)
         self.fl_distribution_ordering_dropdown.setCurrentText(imageCountDropdownSelection)
-        self.create_dropdown_row(self.fl_distribution_top_controls, {f'{defaultLensOrderingDropdownSelection}:': self.fl_distribution_category_dropdown, 'Ordering:': self.fl_distribution_ordering_dropdown})
+        self.create_dropdown_row(self.fl_distribution_top_controls, {self.fl_distribution_categroy_dropdown_label: self.fl_distribution_category_dropdown, self.fl_distribution_ordering_dropdown_label: self.fl_distribution_ordering_dropdown})
+        self.fl_distribution_top_controls.addItem(QSpacerItem(20, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
+
+        self.fl_distribution_top_controls.addWidget(self.current_dir_label)
+        self.fl_distribution_top_controls.addWidget(self.change_dir_button)
 
     def create_lens_distribution_top_controls(self, keys):
         self.lens_distribution_category_dropdown.addItem(defaultSelectionDropdownSelection)
+        self.lens_distribution_category_dropdown.addItems(map(str,keys))
         self.lens_distribution_category_dropdown.setCurrentText(defaultSelectionDropdownSelection)
-        self.lens_distribution_category_dropdown.addItems([format_focal_length(key) for key in sorted(list(keys))])
 
         self.lens_distribution_ordering_dropdown.addItem(imageCountDropdownSelection)
         self.lens_distribution_ordering_dropdown.addItem(defaultLensOrderingDropdownSelection)
         self.lens_distribution_ordering_dropdown.setCurrentText(imageCountDropdownSelection)
-        self.create_dropdown_row(self.lens_distribution_top_controls, {f"{defaultFocalLengthOrderingDropdownSelection}:": self.lens_distribution_category_dropdown, 'Ordering:': self.lens_distribution_ordering_dropdown})
+        self.create_dropdown_row(self.lens_distribution_top_controls, {self.lens_distribution_categroy_dropdown_label: self.lens_distribution_category_dropdown, self.lens_distribution_ordering_dropdown_label: self.lens_distribution_ordering_dropdown})
+        self.lens_distribution_top_controls.addItem(QSpacerItem(20, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
     def create_dropdown_row(self, layout, dropdowns):
-        for label, dropdown in dropdowns.items():
-            dropdown_label = QLabel(label)
-            dropdown_label.setFont(self.normal_font)
+        for dropdown_label, dropdown in dropdowns.items():
             layout.addWidget(dropdown_label)
             layout.addWidget(dropdown)
             layout.addItem(QSpacerItem(20, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))

@@ -43,7 +43,7 @@ def convert_focal_length(focal_length_tag):
         if isinstance(focal_length, exifread.utils.Ratio):
             return float(focal_length.num) / float(focal_length.den)
         else:
-            return float(focal_length)
+            return int(focal_length)
     return None
     
 
@@ -62,7 +62,7 @@ def searchImages(folder_path):
                     focal_length_tag = tags.get('EXIF FocalLength')
                     if lens and focal_length_tag:
                         lens = str(lens)
-                        focal_length = convert_focal_length(focal_length_tag)
+                        focal_length = round(convert_focal_length(focal_length_tag))
                         if focal_length is not None:
                             checkLens(lens, focal_length)
                             checkFocalLength(lens, focal_length)

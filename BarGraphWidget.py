@@ -118,7 +118,7 @@ class BarGraphWidget(QWidget):
             painter.drawText(value_text_x, value_text_y, value_text)
 
             # Label category at x-axis
-            category_text = format_focal_length(self.categories[i]) if type(self.categories[i]) == float else self.categories[i]
+            category_text = format_focal_length(self.categories[i]) if isinstance(self.categories[i], int) or isinstance(self.categories[i], float) else self.categories[i]
             category_text_rect = QRect(int(x-graph_padding_constant), self.height() - 50, int(self.bar_width + (graph_padding_constant * 2)), 40)
             painter.setFont(self.x_axis_font)
             wrapped_text = QFontMetrics(self.x_axis_font).elidedText(category_text, Qt.TextElideMode.ElideNone, category_text_rect.width())
@@ -164,4 +164,4 @@ class BarGraphWidget(QWidget):
         delta = event.angleDelta().y() * sensitivity_factor
         parent = self.parentWidget().parentWidget()
         if parent and isinstance(parent, CustomScrollArea):
-            parent.scrollHorizontally(-delta)
+            parent.scrollHorizontally(delta)
