@@ -1,9 +1,8 @@
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QPainter, QColor, QFont, QFontMetrics, QPen
 from PyQt5.QtCore import Qt, QRect, QPoint
-from constants import focalLengthCategory, focalLengthDistributionPaddingConstant, lensDistributionGraphPaddingConstant, graph_font
+from constants import focalLengthCategory, lensCategory, graph_padding_constant, graph_font
 from util import format_focal_length
-import math
 
 class BarGraphWidget(QWidget):
     def __init__(self, categories, values, images_selection_text, total_image_count, category, parent=None):
@@ -34,78 +33,95 @@ class BarGraphWidget(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        bar_width = 50 if self.category == focalLengthCategory else 200
-        bar_spacing = 15 if self.category == focalLengthCategory else 200
         max_height = max(self.values)
-        available_height = self.height() - 100  # Leave some margin
-        if max_height > 0:
-            height_scaling = available_height / max_height
-        else:
-            height_scaling = 1
+        self.available_height = self.height() - 100  # Leave some margin
+        self.height_scaling = self.available_height / max_height if max_height > 0 else 1
         self.bar_positions = []
+        self.num_categories = len(self.categories)
+        self.total_width = 0
+        self.bar_label_font = QFont(graph_font, 14)
+        self.bar_label_font.setBold(True)
+        self.x_axis_font = QFont(graph_font, 13)
+        self.x_axis_font.setBold(False)
+        self.available_width = self.width() - (graph_padding_constant * 2)
+        total_bar_width = self.available_width * 0.5
+        total_bar_space = self.available_width - total_bar_width
+        if self.category == focalLengthCategory:
+            if self.num_categories < 30:
+                self.bar_width = total_bar_width / self.num_categories
+                self.bar_spacing = total_bar_space / self.num_categories
+            else:
+                self.bar_width = 40
+                self.bar_spacing = 30
+        elif self.category == lensCategory:
+            if self.num_categories < 7:
+                self.bar_width = int(total_bar_width / self.num_categories)
+                self.bar_spacing = int(total_bar_space / self.num_categories)
+            else:
+                self.bar_width = 350
+                self.bar_spacing = 200
+        self.draw_gridlines(painter)
+        self.draw_bars(painter)
+        if self.dragging:
+            painter.setBrush(QColor(200, 200, 200, 100))
+            painter.drawRect(self.selection_rect)
 
-        total_width = 0
-        bar_label_font = QFont(graph_font, 14)
-        bar_label_font.setBold(True)
-        x_axis_font = QFont(graph_font, 13)
-        x_axis_font.setBold(False)
-        paddingConstant = focalLengthDistributionPaddingConstant if self.category == focalLengthCategory else lensDistributionGraphPaddingConstant
-
+    def draw_gridlines(self, painter):
         # Draw vertical grid lines
         grid_pen = QPen(QColor(200, 200, 200), 1.6, Qt.SolidLine)
         painter.setPen(grid_pen)
-        num_vertical_lines = len(self.values)
-        for i in range(1, num_vertical_lines):
-            x = i * (bar_width + bar_spacing) + paddingConstant - bar_spacing // 2
-            painter.drawLine(x, 40, x, self.height() - 55)
+        for i in range(1, self.num_categories):
+            x = i * (self.bar_width + self.bar_spacing) + graph_padding_constant
+            painter.drawLine(int(x), 40, int(x), self.height() - 55)
         # Draw horizontal grid lines
         num_horizontal_lines = 8
-        increment = available_height / (num_horizontal_lines - 1)
+        increment = self.available_height / (num_horizontal_lines - 1)
         for i in range(num_horizontal_lines):
             y = int(i * increment)  # Ensure y is an integer
-            painter.drawLine(20, y-10, self.width(), y)
+            painter.drawLine(graph_padding_constant, y, self.available_width + graph_padding_constant, y)
         # Draw the horizontal axis line
         painter.setPen(QPen(Qt.black, 1))
         x_axis_y = self.height() - 55  # Same as y offset used for bars
-        painter.drawLine(20, x_axis_y, self.width() - 20, x_axis_y)
+        painter.drawLine(graph_padding_constant, x_axis_y, self.available_width + graph_padding_constant, x_axis_y)
         # Draw the vertical axis line
-        painter.drawLine(20, x_axis_y, 20, 40)  # 40 is a top margin
+        painter.drawLine(graph_padding_constant, x_axis_y, graph_padding_constant, 40)
 
+    def draw_bars(self, painter):
         for i, value in enumerate(self.values):
-            x = i * (bar_width + bar_spacing) + paddingConstant
-            height = int(value * height_scaling)
-            if height > available_height:
-                height = available_height  # Cap the height at the available space
+            x = i * (self.bar_width + self.bar_spacing) + graph_padding_constant + (self.bar_spacing/2)
+            height = int(value * self.height_scaling)
+            if height > self.available_height:
+                height = self.available_height  # Cap the height at the available space
             y = self.height() - height - 55  # Offset bars upwards
-            total_width += bar_width
-            total_width += bar_spacing if i != len(self.values)-1 else paddingConstant * 2
+            self.total_width += self.bar_width
+            self.total_width += self.bar_spacing
 
-            self.bar_positions.append(QRect(x, y, bar_width, height))
+            self.bar_positions.append(QRect(int(x), y, int(self.bar_width), height))
             if i in self.selected_bars:
                 painter.setBrush(QColor(250, 100, 100))
             else:
                 painter.setBrush(QColor(100, 150, 250))
-            painter.drawRect(x, y, bar_width, height)
+            painter.drawRect(int(x), y, int(self.bar_width), height)
 
             # Annotation at the top of each bar
-            painter.setFont(bar_label_font)
+            painter.setFont(self.bar_label_font)
             value_text = str(value)
-            font_metrics = QFontMetrics(bar_label_font)
+            font_metrics = QFontMetrics(self.bar_label_font)
             value_text_width = font_metrics.width(value_text)
-            value_text_x = int(x + (bar_width - value_text_width) / 2)
+            value_text_x = int(x + (self.bar_width - value_text_width) / 2)
             value_text_y = int(y - 10)
             painter.drawText(value_text_x, value_text_y, value_text)
+
             # Label category at x-axis
             category_text = format_focal_length(self.categories[i]) if type(self.categories[i]) == float else self.categories[i]
-            category_text_rect = QRect(x-paddingConstant, self.height() - 50, bar_width + (paddingConstant * 2), 40)
-            painter.setFont(x_axis_font)
-            wrapped_text = QFontMetrics(x_axis_font).elidedText(category_text, Qt.TextElideMode.ElideNone, category_text_rect.width())
+            category_text_rect = QRect(int(x-graph_padding_constant), self.height() - 50, int(self.bar_width + (graph_padding_constant * 2)), 40)
+            painter.setFont(self.x_axis_font)
+            wrapped_text = QFontMetrics(self.x_axis_font).elidedText(category_text, Qt.TextElideMode.ElideNone, category_text_rect.width())
             painter.drawText(category_text_rect, Qt.AlignCenter | Qt.TextWordWrap, wrapped_text )
-
-        if self.dragging:
-            painter.setBrush(QColor(200, 200, 200, 100))
-            painter.drawRect(self.selection_rect)
-        self.setMinimumWidth(total_width)
+        if (self.category == focalLengthCategory and self.num_categories >= 30) or (self.category == lensCategory and self.num_categories >= 7):
+            self.setMinimumWidth(self.total_width + (graph_padding_constant * 2))
+        else:
+            self.setMinimumWidth(0)
 
     def mousePressEvent(self, event):
         self.drag_start = event.pos()

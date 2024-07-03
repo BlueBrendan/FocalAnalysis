@@ -51,7 +51,7 @@ class MainWindow(QMainWindow):
         # Directory controls
         self.current_dir_label = QLabel(f"Current Directory: {folder_path}")
         self.current_dir_label.setFont(self.normal_font)
-        self.current_dir_label.setContentsMargins(0, 0, 15, 0)
+        self.current_dir_label.setContentsMargins(0, 0, 10, 0)
         change_dir_button = QPushButton("Change Directory")
         change_dir_button.setFont(self.normal_font)
         change_dir_button.clicked.connect(self.change_directory)
