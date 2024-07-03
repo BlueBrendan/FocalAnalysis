@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtGui import QPainter, QColor, QFont, QFontMetrics
+from PyQt5.QtGui import QPainter, QColor, QFont, QFontMetrics, QPen
 from PyQt5.QtCore import Qt, QRect, QPoint
-from constants import focalLengthCategory, focalLengthDistributionPaddingConstant, lensDistributionGraphPaddingConstant
+from constants import focalLengthCategory, focalLengthDistributionPaddingConstant, lensDistributionGraphPaddingConstant, graph_font
 from util import format_focal_length
 
 class BarGraphWidget(QWidget):
@@ -44,11 +44,32 @@ class BarGraphWidget(QWidget):
         self.bar_positions = []
 
         total_width = 0
-        bar_label_font = QFont("Arial", 12)
+        bar_label_font = QFont(graph_font, 14)
         bar_label_font.setBold(True)
-        x_axis_font = QFont("Arial", 12)
+        x_axis_font = QFont(graph_font, 13)
         x_axis_font.setBold(False)
         paddingConstant = focalLengthDistributionPaddingConstant if self.category == focalLengthCategory else lensDistributionGraphPaddingConstant
+
+        # Draw vertical grid lines
+        grid_pen = QPen(QColor(200, 200, 200), 1.6, Qt.SolidLine)
+        painter.setPen(grid_pen)
+        num_vertical_lines = len(self.values)
+        for i in range(1, num_vertical_lines):
+            x = i * (bar_width + bar_spacing) + paddingConstant - bar_spacing // 2
+            painter.drawLine(x, 40, x, self.height() - 55)
+        # Draw horizontal grid lines
+        num_horizontal_lines = 8
+        increment = available_height / (num_horizontal_lines - 1)
+        for i in range(num_horizontal_lines):
+            y = int(i * increment)  # Ensure y is an integer
+            painter.drawLine(20, y-10, self.width(), y)
+        # Draw the horizontal axis line
+        painter.setPen(QPen(Qt.black, 1))
+        x_axis_y = self.height() - 55  # Same as y offset used for bars
+        painter.drawLine(20, x_axis_y, self.width() - 20, x_axis_y)
+        # Draw the vertical axis line
+        painter.drawLine(20, x_axis_y, 20, 40)  # 40 is a top margin
+
         for i, value in enumerate(self.values):
             x = i * (bar_width + bar_spacing) + paddingConstant
             height = int(value * height_scaling)

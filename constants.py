@@ -15,9 +15,10 @@ defaultFocalLengthOrderingDropdownSelection = "Focal Length"
 defaultLensOrderingDropdownSelection = "Lens"
 imageCountDropdownSelection = "Image Count"
 
-# CATEGORIES
 focalLengthCategory = 'FocalLength'
 lensCategory = 'Lens'
 
-focalLengthDistributionPaddingConstant = 20
+graph_font = 'Kaiti'
+
+focalLengthDistributionPaddingConstant = 35
 lensDistributionGraphPaddingConstant = 90
