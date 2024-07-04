@@ -1,8 +1,11 @@
 import os
-from constants import focal_lenghts_by_lens, lens_count, focal_lengths, lens_by_focal_length
+from constants import focal_lengths_by_lens_dict, lens_by_focal_length_dict
 import exifread
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import QScrollArea
+
+lens_set = set()
+focal_length_set = set()
 
 def format_focal_length(focal_length):
     if focal_length.is_integer():
@@ -12,23 +15,19 @@ def format_focal_length(focal_length):
 
 def check_lens(lens, focalLength):
     lens = lens.strip('\x00')
-    if lens in focal_lenghts_by_lens:
-        lens_count[lens] += 1
-        if focalLength in focal_lenghts_by_lens[lens]:
-            focal_lenghts_by_lens[lens][focalLength] += 1
+    if lens in lens_set:
+        if focalLength in focal_lengths_by_lens_dict[lens]:
+            focal_lengths_by_lens_dict[lens][focalLength] += 1
         else:
-            focal_lenghts_by_lens[lens][focalLength] = 1
+            focal_lengths_by_lens_dict[lens][focalLength] = 1
     else:
-        focal_lenghts_by_lens[lens] = {focalLength: 1}
-        lens_count[lens] = 1
+        focal_lengths_by_lens_dict[lens] = {focalLength: 1}
 
-def checkFocalLength(lens, focalLength):
-    if focalLength in focal_lengths:
-        focal_lengths[focalLength] += 1
-        lens_by_focal_length[focalLength][lens] = lens_by_focal_length[focalLength].get(lens, 0) + 1
+def check_focal_length(lens, focalLength):
+    if focalLength in focal_length_set:
+        lens_by_focal_length_dict[focalLength][lens] = lens_by_focal_length_dict[focalLength].get(lens, 0) + 1
     else:
-        focal_lengths[focalLength] = 1
-        lens_by_focal_length[focalLength] = {lens: 1}
+        lens_by_focal_length_dict[focalLength] = {lens: 1}
 
 def is_valid_image(file_path):
     try:
@@ -47,14 +46,15 @@ def convert_focal_length(focal_length_tag):
             return int(focal_length)
     return None
     
-
 def search_images(folder_path, progress_signal):
+    lens_set.clear()
+    focal_length_set.clear()
     valid_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff']  # Add more if needed
     total_files = sum([len(files) for r, d, files in os.walk(folder_path)])
     processed_files = 0
 
     for root, _, files in os.walk(folder_path):
-        for i, file_name in enumerate(files):
+        for file_name in files:
             try:
                 file_path = os.path.join(root, file_name)
                 if os.path.splitext(file_name.lower())[1] not in valid_extensions:
@@ -68,7 +68,9 @@ def search_images(folder_path, progress_signal):
                         focal_length = round(convert_focal_length(focal_length_tag))
                         if focal_length is not None:
                             check_lens(lens, focal_length)
-                            checkFocalLength(lens, focal_length)
+                            check_focal_length(lens, focal_length)
+                            lens_set.add(lens)
+                            focal_length_set.add(focal_length)
                     else:
                         print(f"Missing EXIF data for {file_name}")
                 processed_files += 1
