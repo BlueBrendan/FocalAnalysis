@@ -1,20 +1,17 @@
 folder_path = ''
 
-focalLengthsByLens = {} # {lens:{focalLength: count}}
-focalLengths = {} # {focal length: count}
-lensByFocalLength = {} # {focal length:{lens: count}}
-lensCount = {} # {lens: count}
+focal_lenghts_by_lens = {} # {lens:{focalLength: count}}
+focal_lengths = {} # {focal length: count}
+lens_by_focal_length = {} # {focal length:{lens: count}}
+lens_count = {} # {lens: count}
 
-lensModelExif = 42036
-focalLengthIn35mmExif = 41989
+default_selection_dropdown_selection = "All"
+default_focal_length_ordering_dropdown_selection = "Focal Length"
+default_lens_ordering_dropdown_selection = "Lens"
+image_count_dropdown_selection = "Image Count"
 
-defaultSelectionDropdownSelection = "All"
-defaultFocalLengthOrderingDropdownSelection = "Focal Length"
-defaultLensOrderingDropdownSelection = "Lens"
-imageCountDropdownSelection = "Image Count"
-
-focalLengthCategory = 'FocalLength'
-lensCategory = 'Lens'
+focal_length_category = 'FocalLength'
+lens_category = 'Lens'
 
 graph_font = 'Kaiti'
 graph_padding_constant = 25

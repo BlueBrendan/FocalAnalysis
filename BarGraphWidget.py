@@ -1,9 +1,8 @@
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QPainter, QColor, QFont, QFontMetrics, QPen
 from PyQt5.QtCore import Qt, QRect, QPoint
-from constants import focalLengthCategory, lensCategory, graph_padding_constant, graph_font
-from util import format_focal_length
-from CustomScrollArea import CustomScrollArea
+from constants import focal_length_category, lens_category, graph_padding_constant, graph_font
+from util import CustomScrollArea, format_focal_length 
 
 class BarGraphWidget(QWidget):
     def __init__(self, categories, values, images_selection_text, total_image_count, category, parent=None):
@@ -21,7 +20,7 @@ class BarGraphWidget(QWidget):
         self.dragging = False
         self.total_selected_percentage = 0
 
-    def setData(self, categories, values, total_image_count):
+    def set_data(self, categories, values, total_image_count):
         self.categories = categories
         self.values = values
         self.total_image_count = total_image_count
@@ -30,46 +29,6 @@ class BarGraphWidget(QWidget):
         self.images_selection_text.setText(f"Images Selected: 0/{self.total_image_count} (0%)")
         self.updateGeometry()
         self.update()
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
-        max_height = max(self.values) if len(self.values) > 0 else 0
-        self.available_height = self.height() - 100  # Leave some margin
-        self.height_scaling = self.available_height / max_height if max_height > 0 else 1
-        self.bar_positions = []
-        self.num_categories = len(self.categories)
-        self.total_width = 0
-        self.bar_label_font = QFont(graph_font, 14)
-        self.bar_label_font.setBold(True)
-        self.x_axis_font = QFont(graph_font, 13)
-        self.x_axis_font.setBold(False)
-        self.available_width = self.width() - (graph_padding_constant * 2)
-        total_bar_width = self.available_width * 0.5
-        total_bar_space = self.available_width - total_bar_width
-        if self.category == focalLengthCategory:
-            if self.num_categories == 0:
-                self.bar_width, self.bar_spacing = 0, 0
-            elif self.num_categories < 30:
-                self.bar_width = total_bar_width / self.num_categories
-                self.bar_spacing = total_bar_space / self.num_categories
-            else:
-                self.bar_width = 30
-                self.bar_spacing = 20
-        elif self.category == lensCategory:
-            if self.num_categories == 0:
-                self.bar_width, self.bar_spacing = 0, 0
-            elif self.num_categories < 7:
-                self.bar_width = int(total_bar_width / self.num_categories)
-                self.bar_spacing = int(total_bar_space / self.num_categories)
-            else:
-                self.bar_width = 350
-                self.bar_spacing = 150
-        self.draw_gridlines(painter)
-        self.draw_bars(painter)
-        if self.dragging:
-            painter.setBrush(QColor(200, 200, 200, 100))
-            painter.drawRect(self.selection_rect)
 
     def draw_gridlines(self, painter):
         # Draw vertical grid lines
@@ -123,10 +82,51 @@ class BarGraphWidget(QWidget):
             painter.setFont(self.x_axis_font)
             wrapped_text = QFontMetrics(self.x_axis_font).elidedText(category_text, Qt.TextElideMode.ElideNone, category_text_rect.width())
             painter.drawText(category_text_rect, Qt.AlignCenter | Qt.TextWordWrap, wrapped_text )
-        if (self.category == focalLengthCategory and self.num_categories >= 30) or (self.category == lensCategory and self.num_categories >= 7):
+        if (self.category == focal_length_category and self.num_categories >= 30) or (self.category == lens_category and self.num_categories >= 7):
             self.setMinimumWidth(self.total_width + (graph_padding_constant * 2))
         else:
             self.setMinimumWidth(0)
+
+    # PyQt methods
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        max_height = max(self.values) if len(self.values) > 0 else 0
+        self.available_height = self.height() - 100  # Leave some margin
+        self.height_scaling = self.available_height / max_height if max_height > 0 else 1
+        self.bar_positions = []
+        self.num_categories = len(self.categories)
+        self.total_width = 0
+        self.bar_label_font = QFont(graph_font, 14)
+        self.bar_label_font.setBold(True)
+        self.x_axis_font = QFont(graph_font, 13)
+        self.x_axis_font.setBold(False)
+        self.available_width = self.width() - (graph_padding_constant * 2)
+        total_bar_width = self.available_width * 0.5
+        total_bar_space = self.available_width - total_bar_width
+        if self.category == focal_length_category:
+            if self.num_categories == 0:
+                self.bar_width, self.bar_spacing = 0, 0
+            elif self.num_categories < 30:
+                self.bar_width = total_bar_width / self.num_categories
+                self.bar_spacing = total_bar_space / self.num_categories
+            else:
+                self.bar_width = 30
+                self.bar_spacing = 20
+        elif self.category == lens_category:
+            if self.num_categories == 0:
+                self.bar_width, self.bar_spacing = 0, 0
+            elif self.num_categories < 7:
+                self.bar_width = int(total_bar_width / self.num_categories)
+                self.bar_spacing = int(total_bar_space / self.num_categories)
+            else:
+                self.bar_width = 350
+                self.bar_spacing = 150
+        self.draw_gridlines(painter)
+        self.draw_bars(painter)
+        if self.dragging:
+            painter.setBrush(QColor(200, 200, 200, 100))
+            painter.drawRect(self.selection_rect)
 
     def mousePressEvent(self, event):
         self.drag_start = event.pos()
@@ -164,4 +164,4 @@ class BarGraphWidget(QWidget):
         delta = event.angleDelta().y() * sensitivity_factor
         parent = self.parentWidget().parentWidget()
         if parent and isinstance(parent, CustomScrollArea):
-            parent.scrollHorizontally(delta)
+            parent.scrollHorizontally(-delta)

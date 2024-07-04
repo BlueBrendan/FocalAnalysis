@@ -1,21 +1,20 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QProgressBar, QPushButton, QFileDialog, QLabel, QApplication, QComboBox, QSpacerItem, QSizePolicy
 from PyQt5.QtGui import QFont
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtCore import Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
 from constants import (
-    focalLengthsByLens, focalLengths, lensByFocalLength, lensCount,
-    defaultSelectionDropdownSelection,
-    defaultFocalLengthOrderingDropdownSelection,
-    imageCountDropdownSelection,
-    defaultLensOrderingDropdownSelection,
-    focalLengthCategory,
-    lensCategory,
+    focal_lenghts_by_lens, focal_lengths, lens_by_focal_length, lens_count,
+    default_selection_dropdown_selection,
+    default_focal_length_ordering_dropdown_selection,
+    image_count_dropdown_selection,
+    default_lens_ordering_dropdown_selection,
+    focal_length_category,
+    lens_category,
     graph_font
 )
 from BarGraphWidget import BarGraphWidget
-from CustomScrollArea import CustomScrollArea
-from util import searchImages, format_focal_length
+from util import ImageProcessingThread, CustomScrollArea
 from PyQt5.QtCore import Qt
 from os.path import expanduser
 
@@ -43,11 +42,11 @@ class MainWindow(QMainWindow):
         self.fl_distribution_ordering_dropdown.setFont(self.normal_font)
 
         # Create dropdown labels
-        self.fl_distribution_categroy_dropdown_label = QLabel(f"{defaultLensOrderingDropdownSelection}:")
+        self.fl_distribution_categroy_dropdown_label = QLabel(f"{default_lens_ordering_dropdown_selection}:")
         self.fl_distribution_categroy_dropdown_label.setFont(self.normal_font)
         self.fl_distribution_ordering_dropdown_label = QLabel('Ordering:')
         self.fl_distribution_ordering_dropdown_label.setFont(self.normal_font)
-        self.lens_distribution_categroy_dropdown_label = QLabel(f"{defaultFocalLengthOrderingDropdownSelection}:")
+        self.lens_distribution_categroy_dropdown_label = QLabel(f"{default_focal_length_ordering_dropdown_selection}:")
         self.lens_distribution_categroy_dropdown_label.setFont(self.normal_font)
         self.lens_distribution_ordering_dropdown_label = QLabel('Ordering:')
         self.lens_distribution_ordering_dropdown_label.setFont(self.normal_font)
@@ -75,7 +74,7 @@ class MainWindow(QMainWindow):
         self.fl_distribution_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.main_layout.addWidget(self.fl_distribution_scroll_area)
 
-        self.fl_distribution_graph = BarGraphWidget([], [], self.fl_distribution_subtitle_label, 0, focalLengthCategory, parent=self.fl_distribution_scroll_area)
+        self.fl_distribution_graph = BarGraphWidget([], [], self.fl_distribution_subtitle_label, 0, focal_length_category, parent=self.fl_distribution_scroll_area)
         self.fl_distribution_scroll_area.setWidget(self.fl_distribution_graph)
 
         self.fl_distribution_category_dropdown.currentIndexChanged.connect(lambda: self.change_fl_distribution_category_dropdown())
@@ -105,18 +104,18 @@ class MainWindow(QMainWindow):
         self.lens_distribution_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.main_layout.addWidget(self.lens_distribution_scroll_area)
 
-        self.lens_distribution_graph = BarGraphWidget([], [], self.lens_distribution_subtitle_label, 0, lensCategory)
+        self.lens_distribution_graph = BarGraphWidget([], [], self.lens_distribution_subtitle_label, 0, lens_category)
         self.lens_distribution_scroll_area.setWidget(self.lens_distribution_graph)
 
         self.progress_bar = QProgressBar(self)
-        self.progress_bar.setRange(0, 0)  # Indeterminate progress
+        self.progress_bar.setRange(0, 100)
         self.progress_bar.setTextVisible(True)
         self.main_layout.addWidget(self.progress_bar)
 
         self.lens_distribution_category_dropdown.currentIndexChanged.connect(lambda: self.change_lens_distribution_category_dropdown())
         self.lens_distribution_ordering_dropdown.currentIndexChanged.connect(lambda: self.change_lens_distribution_ordering_dropdown())
 
-    def update_graphs(self, focalLengthCountDict, lensFocalLengthCountDict, lensImageCountDict, focalLengthLensDict):
+    def create_graph(self, focalLengthCountDict, lensFocalLengthCountDict, lensImageCountDict, focalLengthLensDict):
         self.progress_bar.hide()
         self.focalLengths = focalLengthCountDict
         self.focalLengthsByLens = lensFocalLengthCountDict
@@ -129,17 +128,17 @@ class MainWindow(QMainWindow):
         self.change_fl_distribution_category_dropdown()
         self.change_lens_distribution_category_dropdown()
 
-        self.fl_distribution_graph.setData(self.fl_distribution_categories, self.fl_distribution_values, self.fl_distribution_total_image_count)
-        self.lens_distribution_graph.setData(self.lens_distribution_categories, self.lens_distribution_values, self.lens_distribution_total_image_count)
+        self.fl_distribution_graph.set_data(self.fl_distribution_categories, self.fl_distribution_values, self.fl_distribution_total_image_count)
+        self.lens_distribution_graph.set_data(self.lens_distribution_categories, self.lens_distribution_values, self.lens_distribution_total_image_count)
 
     def create_fl_distribution_top_controls(self, keys):
-        self.fl_distribution_category_dropdown.addItem(defaultSelectionDropdownSelection)
+        self.fl_distribution_category_dropdown.addItem(default_selection_dropdown_selection)
         self.fl_distribution_category_dropdown.addItems(list(keys))
-        self.fl_distribution_category_dropdown.setCurrentText(defaultSelectionDropdownSelection)
+        self.fl_distribution_category_dropdown.setCurrentText(default_selection_dropdown_selection)
 
-        self.fl_distribution_ordering_dropdown.addItem(imageCountDropdownSelection)
-        self.fl_distribution_ordering_dropdown.addItem(defaultFocalLengthOrderingDropdownSelection)
-        self.fl_distribution_ordering_dropdown.setCurrentText(imageCountDropdownSelection)
+        self.fl_distribution_ordering_dropdown.addItem(image_count_dropdown_selection)
+        self.fl_distribution_ordering_dropdown.addItem(default_focal_length_ordering_dropdown_selection)
+        self.fl_distribution_ordering_dropdown.setCurrentText(image_count_dropdown_selection)
         self.create_dropdown_row(self.fl_distribution_top_controls, {self.fl_distribution_categroy_dropdown_label: self.fl_distribution_category_dropdown, self.fl_distribution_ordering_dropdown_label: self.fl_distribution_ordering_dropdown})
         self.fl_distribution_top_controls.addItem(QSpacerItem(20, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
@@ -147,13 +146,13 @@ class MainWindow(QMainWindow):
         self.fl_distribution_top_controls.addWidget(self.change_dir_button)
 
     def create_lens_distribution_top_controls(self, keys):
-        self.lens_distribution_category_dropdown.addItem(defaultSelectionDropdownSelection)
+        self.lens_distribution_category_dropdown.addItem(default_selection_dropdown_selection)
         self.lens_distribution_category_dropdown.addItems(map(str,keys))
-        self.lens_distribution_category_dropdown.setCurrentText(defaultSelectionDropdownSelection)
+        self.lens_distribution_category_dropdown.setCurrentText(default_selection_dropdown_selection)
 
-        self.lens_distribution_ordering_dropdown.addItem(imageCountDropdownSelection)
-        self.lens_distribution_ordering_dropdown.addItem(defaultLensOrderingDropdownSelection)
-        self.lens_distribution_ordering_dropdown.setCurrentText(imageCountDropdownSelection)
+        self.lens_distribution_ordering_dropdown.addItem(image_count_dropdown_selection)
+        self.lens_distribution_ordering_dropdown.addItem(default_lens_ordering_dropdown_selection)
+        self.lens_distribution_ordering_dropdown.setCurrentText(image_count_dropdown_selection)
         self.create_dropdown_row(self.lens_distribution_top_controls, {self.lens_distribution_categroy_dropdown_label: self.lens_distribution_category_dropdown, self.lens_distribution_ordering_dropdown_label: self.lens_distribution_ordering_dropdown})
         self.lens_distribution_top_controls.addItem(QSpacerItem(20, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
@@ -165,7 +164,7 @@ class MainWindow(QMainWindow):
 
     def change_fl_distribution_category_dropdown(self):
         dropdown_selection = self.fl_distribution_category_dropdown.currentText()
-        if dropdown_selection == defaultSelectionDropdownSelection:
+        if dropdown_selection == default_selection_dropdown_selection:
             self.fl_distribution_categories, self.fl_distribution_values = zip(*self.sortedFocalLengthDict)
         else:
             self.fl_distribution_categories = tuple(sorted(self.focalLengthsByLens[dropdown_selection].keys()))
@@ -175,17 +174,17 @@ class MainWindow(QMainWindow):
 
     def change_fl_distribution_ordering_dropdown(self):
         dropdown_selection = self.fl_distribution_ordering_dropdown.currentText()
-        if dropdown_selection == defaultFocalLengthOrderingDropdownSelection:
+        if dropdown_selection == default_focal_length_ordering_dropdown_selection:
             sorted_pairs = sorted(zip(self.fl_distribution_categories, self.fl_distribution_values))
             self.fl_distribution_categories, self.fl_distribution_values = zip(*sorted_pairs)
-        elif dropdown_selection == imageCountDropdownSelection:
+        elif dropdown_selection == image_count_dropdown_selection:
             sorted_pairs = sorted(zip(self.fl_distribution_values, self.fl_distribution_categories), reverse=True)
             self.fl_distribution_values, self.fl_distribution_categories = zip(*sorted_pairs)
-        self.fl_distribution_graph.setData(self.fl_distribution_categories, self.fl_distribution_values, self.fl_distribution_total_image_count)
+        self.fl_distribution_graph.set_data(self.fl_distribution_categories, self.fl_distribution_values, self.fl_distribution_total_image_count)
         
     def change_lens_distribution_category_dropdown(self):
         dropdown_selection = self.lens_distribution_category_dropdown.currentText()
-        if dropdown_selection == defaultSelectionDropdownSelection:
+        if dropdown_selection == default_selection_dropdown_selection:
             self.lens_distribution_categories = tuple(self.lensImageCountDict.keys())
             self.lens_distribution_values = tuple(self.lensImageCountDict.values())
         else:
@@ -196,23 +195,23 @@ class MainWindow(QMainWindow):
 
     def change_lens_distribution_ordering_dropdown(self):
         dropdown_selection = self.lens_distribution_ordering_dropdown.currentText()
-        if dropdown_selection == defaultLensOrderingDropdownSelection:
+        if dropdown_selection == default_lens_ordering_dropdown_selection:
             sorted_pairs = sorted(zip(self.lens_distribution_categories, self.lens_distribution_values))
             self.lens_distribution_categories, self.lens_distribution_values = zip(*sorted_pairs)
-        elif dropdown_selection == imageCountDropdownSelection:
+        elif dropdown_selection == image_count_dropdown_selection:
             sorted_pairs = sorted(zip(self.lens_distribution_values, self.lens_distribution_categories), reverse=True)
             self.lens_distribution_values, self.lens_distribution_categories = zip(*sorted_pairs)
-        self.lens_distribution_graph.setData(self.lens_distribution_categories, self.lens_distribution_values, self.lens_distribution_total_image_count)
+        self.lens_distribution_graph.set_data(self.lens_distribution_categories, self.lens_distribution_values, self.lens_distribution_total_image_count)
 
     # Modify the change_directory function to include the progress bar
     def change_directory(self):
         self.folderPath = QFileDialog.getExistingDirectory(self, "Select Directory", expanduser(self.folderPath.rsplit('/', 1)[0]))
         if self.folderPath:
             self.current_dir_label.setText(f"Current Directory: {self.folderPath}")
-            focalLengthsByLens.clear()
-            focalLengths.clear()
-            lensByFocalLength.clear()
-            lensCount.clear()
+            focal_lenghts_by_lens.clear()
+            focal_lengths.clear()
+            lens_by_focal_length.clear()
+            lens_count.clear()
             self.progress_bar.show()
             # Start the image processing in a separate thread
             self.thread = ImageProcessingThread(self.folderPath)
@@ -221,13 +220,12 @@ class MainWindow(QMainWindow):
 
     def on_processing_finished(self):
         self.progress_bar.hide()
-
         # Reset focal length distribution category dropdown
         self.fl_distribution_category_dropdown.blockSignals(True)
         self.fl_distribution_category_dropdown.clear()
-        self.fl_distribution_category_dropdown.addItem(defaultSelectionDropdownSelection)
-        self.fl_distribution_category_dropdown.setCurrentText(defaultSelectionDropdownSelection)
-        self.fl_distribution_category_dropdown.addItems(sorted(list(lensCount.keys())))
+        self.fl_distribution_category_dropdown.addItem(default_selection_dropdown_selection)
+        self.fl_distribution_category_dropdown.setCurrentText(default_selection_dropdown_selection)
+        self.fl_distribution_category_dropdown.addItems(sorted(list(lens_count.keys())))
         self.fl_distribution_category_dropdown.blockSignals(False)
         self.sortedFocalLengthDict = sorted(self.focalLengths.items())
         self.fl_distribution_total_image_count = sum(self.focalLengths.values())
@@ -237,23 +235,14 @@ class MainWindow(QMainWindow):
         # Reset lens dropdown category dropdown
         self.lens_distribution_category_dropdown.blockSignals(True)
         self.lens_distribution_category_dropdown.clear()
-        self.lens_distribution_category_dropdown.addItem(defaultSelectionDropdownSelection)
-        self.lens_distribution_category_dropdown.setCurrentText(defaultSelectionDropdownSelection)
-        self.lens_distribution_category_dropdown.addItems(list(map(str, sorted(lensByFocalLength.keys()))))
+        self.lens_distribution_category_dropdown.addItem(default_selection_dropdown_selection)
+        self.lens_distribution_category_dropdown.setCurrentText(default_selection_dropdown_selection)
+        self.lens_distribution_category_dropdown.addItems(list(map(str, sorted(lens_by_focal_length.keys()))))
         self.lens_distribution_category_dropdown.blockSignals(False)
         self.sortedLensImageCountDict = sorted(self.lensImageCountDict.items())
         self.lens_distribution_total_image_count = sum(self.lensImageCountDict.values())
         self.lens_distribution_total_image_count, self.fl_distribution_values = zip(*self.sortedLensImageCountDict)
         self.change_lens_distribution_category_dropdown()
 
-class ImageProcessingThread(QThread):
-    progress_updated = pyqtSignal(int)
-
-    def __init__(self, folderPath):
-        super().__init__()
-        self.folderPath = folderPath
-
-    def run(self):
-        # Your image processing logic
-        searchImages(self.folderPath)
-        self.progress_updated.emit(100)  # Assuming 100% progress at the end
+    def update_progress(self, value):
+        self.progress_bar.setValue(value)
