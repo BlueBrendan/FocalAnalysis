@@ -1,6 +1,6 @@
 from PIL import Image
 import sys
-from PyQt5.QtWidgets import QApplication, QFileDialog
+from PyQt6.QtWidgets import QApplication, QFileDialog
 from main_window import MainWindow
 from constants import focal_lengths_by_lens_dict, lens_by_focal_length_dict, folder_path
 from util import ImageProcessingThread
@@ -21,7 +21,7 @@ def main():
         analysis_thread.analysis_finished.connect(lambda: window.create_graph(focal_lengths_by_lens_dict, lens_by_focal_length_dict))
         analysis_thread.start()
         
-        sys.exit(app.exec_())
+        sys.exit(app.exec())
 
 if __name__ == "__main__":
     main()

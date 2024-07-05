@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtGui import QPainter, QColor, QFont, QFontMetrics, QPen
-from PyQt5.QtCore import Qt, QRect, QPoint
+from PyQt6.QtWidgets import QWidget
+from PyQt6.QtGui import QPainter, QColor, QFont, QFontMetrics, QPen
+from PyQt6.QtCore import Qt, QRect, QPoint
 from constants import focal_length_category, lens_category, graph_padding_constant, graph_font
 from util import CustomScrollArea, format_focal_length 
 
@@ -32,7 +32,7 @@ class BarGraphWidget(QWidget):
 
     def draw_gridlines(self, painter):
         # Draw vertical grid lines
-        grid_pen = QPen(QColor(200, 200, 200), 1.6, Qt.SolidLine)
+        grid_pen = QPen(QColor(200, 200, 200), 0.5, Qt.PenStyle.SolidLine)
         painter.setPen(grid_pen)
         for i in range(1, self.num_categories):
             x = i * (self.bar_width + self.bar_spacing) + graph_padding_constant
@@ -44,7 +44,7 @@ class BarGraphWidget(QWidget):
             y = int(i * increment)  # Ensure y is an integer
             painter.drawLine(graph_padding_constant, y, self.available_width + graph_padding_constant, y)
         # Draw the horizontal axis line
-        painter.setPen(QPen(Qt.black, 1))
+        painter.setPen(QPen(QColor(0, 0, 0), 1))
         x_axis_y = self.height() - 55  # Same as y offset used for bars
         painter.drawLine(graph_padding_constant, x_axis_y, self.available_width + graph_padding_constant, x_axis_y)
         # Draw the vertical axis line
@@ -61,6 +61,7 @@ class BarGraphWidget(QWidget):
             self.total_width += self.bar_spacing
 
             self.bar_positions.append(QRect(int(x), y, int(self.bar_width), height))
+            painter.setPen(QColor(Qt.GlobalColor.black))
             if i in self.selected_bars:
                 painter.setBrush(QColor(250, 100, 100))
             else:
@@ -69,9 +70,10 @@ class BarGraphWidget(QWidget):
 
             # Annotation at the top of each bar
             painter.setFont(self.bar_label_font)
+            painter.setPen(QColor(Qt.GlobalColor.white))
             value_text = str(value)
             font_metrics = QFontMetrics(self.bar_label_font)
-            value_text_width = font_metrics.width(value_text)
+            value_text_width = font_metrics.horizontalAdvance(value_text)
             value_text_x = int(x + (self.bar_width - value_text_width) / 2)
             value_text_y = int(y - 10)
             painter.drawText(value_text_x, value_text_y, value_text)
@@ -81,7 +83,7 @@ class BarGraphWidget(QWidget):
             category_text_rect = QRect(int(x-graph_padding_constant), self.height() - 50, int(self.bar_width + (graph_padding_constant * 2)), 40)
             painter.setFont(self.x_axis_font)
             wrapped_text = QFontMetrics(self.x_axis_font).elidedText(category_text, Qt.TextElideMode.ElideNone, category_text_rect.width())
-            painter.drawText(category_text_rect, Qt.AlignCenter | Qt.TextWordWrap, wrapped_text )
+            painter.drawText(category_text_rect, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextWordWrap, wrapped_text )
         if (self.category == focal_length_category and self.num_categories >= 30) or (self.category == lens_category and self.num_categories >= 7):
             self.setMinimumWidth(self.total_width + (graph_padding_constant * 2))
         else:
@@ -90,7 +92,8 @@ class BarGraphWidget(QWidget):
     # PyQt methods
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setPen(QColor(Qt.GlobalColor.white))
         max_height = max(self.values) if len(self.values) > 0 else 0
         self.available_height = self.height() - 100  # Leave some margin
         self.height_scaling = self.available_height / max_height if max_height > 0 else 1
@@ -149,7 +152,7 @@ class BarGraphWidget(QWidget):
                 if selection_area.intersects(rect):
                     selected_indices.add(i)
                     total_selected_value += self.values[i]
-            if not event.modifiers() & Qt.ShiftModifier:
+            if not event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
                 self.selected_bars = selected_indices
             else:
                 self.selected_bars.update(selected_indices)

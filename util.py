@@ -1,8 +1,8 @@
 import os
 from constants import focal_lengths_by_lens_dict, lens_by_focal_length_dict
 import exifread
-from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtWidgets import QScrollArea
+from PyQt6.QtCore import QThread, pyqtSignal
+from PyQt6.QtWidgets import QScrollArea
 
 lens_set = set()
 focal_length_set = set()

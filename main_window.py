@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QProgressBar, QPushButton, QFileDialog, QLabel, QApplication, QComboBox, QSpacerItem, QSizePolicy
-from PyQt5.QtGui import QFont
-from PyQt5.QtCore import Qt
+from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QProgressBar, QPushButton, QFileDialog, QLabel, QApplication, QComboBox, QSpacerItem, QSizePolicy
+from PyQt6.QtGui import QFont
+from PyQt6.QtCore import Qt
 from constants import (
     focal_lengths_by_lens_dict,
     lens_by_focal_length_dict,
@@ -14,7 +14,7 @@ from constants import (
 )
 from BarGraphWidget import BarGraphWidget
 from util import ImageProcessingThread, CustomScrollArea
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 from os.path import expanduser
 from collections import Counter
 
@@ -55,16 +55,16 @@ class MainWindow(QMainWindow):
 
         # Create focal length distribution graph
         fl_distribution_title_label = QLabel("Focal Length Distribution")
-        fl_distribution_title_label.setAlignment(Qt.AlignCenter)
+        fl_distribution_title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         fl_distribution_title_label.setFont(title_font)
         self.main_layout.addWidget(fl_distribution_title_label)
         fl_distribution_subtitle_label = QLabel("Images Selected: 0/0 (0%)")
-        fl_distribution_subtitle_label.setAlignment(Qt.AlignCenter)
+        fl_distribution_subtitle_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         fl_distribution_subtitle_label.setFont(subtitle_font)
         self.main_layout.addWidget(fl_distribution_subtitle_label)
         self.fl_distribution_scroll_area = CustomScrollArea()
         self.fl_distribution_scroll_area.setWidgetResizable(True)
-        self.fl_distribution_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.fl_distribution_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.main_layout.addWidget(self.fl_distribution_scroll_area)
         self.fl_distribution_graph = BarGraphWidget([], [], fl_distribution_subtitle_label, 0, focal_length_category, parent=self.fl_distribution_scroll_area)
         self.fl_distribution_scroll_area.setWidget(self.fl_distribution_graph)
@@ -86,30 +86,39 @@ class MainWindow(QMainWindow):
 
         # Create lens distribution graph
         lens_distribution_title_label = QLabel("Lens Distribution")
-        lens_distribution_title_label.setAlignment(Qt.AlignCenter)
+        lens_distribution_title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         lens_distribution_title_label.setFont(title_font)
         self.main_layout.addWidget(lens_distribution_title_label)
         lens_distribution_subtitle_label = QLabel("Images Selected: 0/0 (0%)")
-        lens_distribution_subtitle_label.setAlignment(Qt.AlignCenter)
+        lens_distribution_subtitle_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         lens_distribution_subtitle_label.setFont(subtitle_font)
         self.main_layout.addWidget(lens_distribution_subtitle_label)
         self.lens_distribution_scroll_area = CustomScrollArea()
         self.lens_distribution_scroll_area.setWidgetResizable(True)
-        self.lens_distribution_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.lens_distribution_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self.main_layout.addWidget(self.lens_distribution_scroll_area)
         self.lens_distribution_graph = BarGraphWidget([], [], lens_distribution_subtitle_label, 0, lens_category)
         self.lens_distribution_scroll_area.setWidget(self.lens_distribution_graph)
 
+        self.progress_container = QWidget(self)
+        self.progress_layout = QVBoxLayout(self.progress_container)
+        self.progress_layout.setContentsMargins(0, 0, 0, 0)
+
         self.progress_bar = QProgressBar(self)
         self.progress_bar.setRange(0, 100)
         self.progress_bar.setTextVisible(True)
+        self.progress_bar.setFixedHeight(30)
+        self.progress_bar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.main_layout.addWidget(self.progress_bar)
+        size_policy = self.progress_bar.sizePolicy()
+        size_policy.setRetainSizeWhenHidden(True)
+        self.progress_bar.setSizePolicy(size_policy)
 
         self.lens_distribution_category_dropdown.currentIndexChanged.connect(lambda: self.change_lens_distribution_category_dropdown())
         self.lens_distribution_ordering_dropdown.currentIndexChanged.connect(lambda: self.change_lens_distribution_ordering_dropdown())
 
     def create_graph(self, focal_lengths_by_lens_dict, lens_by_focal_length_dict):
-        self.progress_bar.hide()
+        self.progress_bar.setVisible(False)
         self.focal_lengths_by_lens = focal_lengths_by_lens_dict
         self.focalLengthLensDict = lens_by_focal_length_dict
         self.create_fl_distribution_top_controls(sorted(focal_lengths_by_lens_dict.keys()))
@@ -129,7 +138,7 @@ class MainWindow(QMainWindow):
         self.fl_distribution_ordering_dropdown.addItem(default_focal_length_ordering_dropdown_selection)
         self.fl_distribution_ordering_dropdown.setCurrentText(image_count_dropdown_selection)
         self.create_dropdown_rows(self.fl_distribution_top_controls, {self.fl_distribution_categroy_dropdown_label: self.fl_distribution_category_dropdown, self.fl_distribution_ordering_dropdown_label: self.fl_distribution_ordering_dropdown})
-        self.fl_distribution_top_controls.addItem(QSpacerItem(20, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        self.fl_distribution_top_controls.addItem(QSpacerItem(20, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
 
         self.fl_distribution_top_controls.addWidget(self.current_dir_label)
         self.fl_distribution_top_controls.addWidget(self.change_dir_button)
@@ -143,13 +152,13 @@ class MainWindow(QMainWindow):
         self.lens_distribution_ordering_dropdown.addItem(default_lens_ordering_dropdown_selection)
         self.lens_distribution_ordering_dropdown.setCurrentText(image_count_dropdown_selection)
         self.create_dropdown_rows(self.lens_distribution_top_controls, {self.lens_distribution_categroy_dropdown_label: self.lens_distribution_category_dropdown, self.lens_distribution_ordering_dropdown_label: self.lens_distribution_ordering_dropdown})
-        self.lens_distribution_top_controls.addItem(QSpacerItem(20, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        self.lens_distribution_top_controls.addItem(QSpacerItem(20, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
 
     def create_dropdown_rows(self, layout, dropdowns):
         for dropdown_label, dropdown in dropdowns.items():
             layout.addWidget(dropdown_label)
             layout.addWidget(dropdown)
-            layout.addItem(QSpacerItem(20, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
+            layout.addItem(QSpacerItem(20, 0, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum))
 
     def change_fl_distribution_category_dropdown(self):
         dropdown_selection = self.fl_distribution_category_dropdown.currentText()
@@ -202,7 +211,7 @@ class MainWindow(QMainWindow):
             self.current_dir_label.setText(f"Current Directory: {self.folderPath}")
             focal_lengths_by_lens_dict.clear()
             lens_by_focal_length_dict.clear()
-            self.progress_bar.show()
+            self.progress_bar.setVisible(True)
             # Start the image processing in a separate thread
             self.thread = ImageProcessingThread(self.folderPath)
             self.thread.progress_updated.connect(self.update_progress)
@@ -210,7 +219,7 @@ class MainWindow(QMainWindow):
             self.thread.start()
 
     def on_processing_finished(self):
-        self.progress_bar.hide()
+        self.progress_bar.setVisible(False)
         # Reset focal length distribution category dropdown
         self.fl_distribution_category_dropdown.blockSignals(True)
         self.fl_distribution_category_dropdown.clear()
