@@ -173,16 +173,15 @@ class BarGraphWidget(QWidget):
     def mouseDoubleClickEvent(self, event: QMouseEvent):
         if len(self.selected_bars) == 1:
             selected_category = self.categories[self.selected_bars.pop()]
-            print(selected_category)
             if self.category == focal_length_category:
                 self.lens_distribution_dropdown.setCurrentText(str(selected_category))
             elif self.category == lens_category:
                 self.fl_distribution_dropdown.setCurrentText(selected_category)
-        else:
-            if self.category == focal_length_category:
-                self.fl_distribution_dropdown.setCurrentText(default_category_dropdown_selection)
-            elif self.category == lens_category:
-                self.lens_distribution_dropdown.setCurrentText(default_category_dropdown_selection)
+        # else:
+        #     if self.category == focal_length_category:
+        #         self.fl_distribution_dropdown.setCurrentText(default_category_dropdown_selection)
+        #     elif self.category == lens_category:
+        #         self.lens_distribution_dropdown.setCurrentText(default_category_dropdown_selection)
 
     def wheelEvent(self, event):
         sensitivity_factor = 2

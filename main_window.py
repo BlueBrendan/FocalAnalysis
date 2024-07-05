@@ -10,7 +10,8 @@ from constants import (
     default_lens_ordering_dropdown_selection,
     focal_length_category,
     lens_category,
-    graph_font
+    graph_font,
+    progress_bar_style_sheet
 )
 from BarGraphWidget import BarGraphWidget
 from util import ImageProcessingThread, CustomScrollArea
@@ -27,9 +28,9 @@ class MainWindow(QMainWindow):
         main_widget.setLayout(self.main_layout)
         self.folderPath = folder_path
 
-        title_font = QFont(graph_font, 17)
+        title_font = QFont(graph_font, 16)
         title_font.setBold(True)
-        subtitle_font = QFont(graph_font, 14)
+        subtitle_font = QFont(graph_font, 12)
         self.normal_font = QFont(graph_font, 12)
 
         # Create focal length distribution dropdowns
@@ -106,7 +107,7 @@ class MainWindow(QMainWindow):
         lens_distribution_subtitle_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         lens_distribution_subtitle_label.setFont(subtitle_font)
         self.main_layout.addWidget(lens_distribution_subtitle_label)
-        self.lens_distribution_selected_label = QLabel('Focal Length: All')
+        self.lens_distribution_selected_label = QLabel('Focal Length: <b>All</b>')
         self.lens_distribution_selected_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lens_distribution_selected_label.setFont(subtitle_font)
         self.main_layout.addWidget(self.lens_distribution_selected_label)
@@ -127,6 +128,7 @@ class MainWindow(QMainWindow):
         self.progress_bar.setRange(0, 100)
         self.progress_bar.setTextVisible(True)
         self.progress_bar.setFixedHeight(30)
+        self.progress_bar.setStyleSheet(progress_bar_style_sheet)
         self.progress_bar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.main_layout.addWidget(self.progress_bar)
         size_policy = self.progress_bar.sizePolicy()
