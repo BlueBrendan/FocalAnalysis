@@ -1,16 +1,18 @@
 from PyQt6.QtWidgets import QWidget
-from PyQt6.QtGui import QPainter, QColor, QFont, QFontMetrics, QPen
+from PyQt6.QtGui import QPainter, QColor, QFont, QFontMetrics, QPen, QMouseEvent
 from PyQt6.QtCore import Qt, QRect, QPoint
-from constants import focal_length_category, lens_category, graph_padding_constant, graph_font
+from constants import focal_length_category, lens_category, graph_padding_constant, graph_font, default_category_dropdown_selection
 from util import CustomScrollArea, format_focal_length 
 
 class BarGraphWidget(QWidget):
-    def __init__(self, categories, values, images_selection_text, total_image_count, category, parent=None):
+    def __init__(self, categories, values, images_selection_text, total_image_count, category, fl_distribution_dropdown, lens_distribution_dropdown, selected_label, parent=None):
         super().__init__(parent)
         self.categories = categories
         self.values = values
         self.images_selection_text = images_selection_text
         self.total_image_count = total_image_count
+        self.fl_distribution_dropdown = fl_distribution_dropdown
+        self.lens_distribution_dropdown = lens_distribution_dropdown
         self.category = category
         self.setMinimumHeight(400)
         self.selected_bars = set()
@@ -143,7 +145,7 @@ class BarGraphWidget(QWidget):
             self.selection_rect.setBottomRight(event.pos())
             self.update()
 
-    def mouseReleaseEvent(self, event):
+    def mouseReleaseEvent(self, event: QMouseEvent):
         if self.dragging:
             selected_indices = set()
             selection_area = self.selection_rect.normalized()
@@ -152,15 +154,35 @@ class BarGraphWidget(QWidget):
                 if selection_area.intersects(rect):
                     selected_indices.add(i)
                     total_selected_value += self.values[i]
-            if not event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
-                self.selected_bars = selected_indices
-            else:
+            if event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
                 self.selected_bars.update(selected_indices)
+            elif event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+                for bar in selected_indices:
+                    if bar in self.selected_bars:
+                        self.selected_bars.remove(bar)
+                    else:
+                        self.selected_bars.add(bar)
+            else:
+                self.selected_bars = selected_indices
             total_selected_value = sum(self.values[i] for i in self.selected_bars)
             self.total_selected_percentage = round((total_selected_value / self.total_image_count) * 100, 2) if total_selected_value > 0 else 0
             self.images_selection_text.setText(f"Images Selected: {total_selected_value}/{self.total_image_count} ({self.total_selected_percentage}%)")
             self.dragging = False
             self.update()
+
+    def mouseDoubleClickEvent(self, event: QMouseEvent):
+        if len(self.selected_bars) == 1:
+            selected_category = self.categories[self.selected_bars.pop()]
+            print(selected_category)
+            if self.category == focal_length_category:
+                self.lens_distribution_dropdown.setCurrentText(str(selected_category))
+            elif self.category == lens_category:
+                self.fl_distribution_dropdown.setCurrentText(selected_category)
+        else:
+            if self.category == focal_length_category:
+                self.fl_distribution_dropdown.setCurrentText(default_category_dropdown_selection)
+            elif self.category == lens_category:
+                self.lens_distribution_dropdown.setCurrentText(default_category_dropdown_selection)
 
     def wheelEvent(self, event):
         sensitivity_factor = 2
