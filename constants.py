@@ -30,7 +30,8 @@ progress_bar_style_sheet = f"""
         text-align: center; /* Adjust text alignment */
         color: black;
         font: {progress_bar_font};
-        font-size: 18px;
+        font-weight: bold;
+        font-size: 15px;
     }}
     QProgressBar::chunk {{
         background-color: #4CAF50; /* Green color */
