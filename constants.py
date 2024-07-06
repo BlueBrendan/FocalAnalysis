@@ -11,6 +11,15 @@ image_count_dropdown_selection = "Image Count"
 focal_length_category = 'FocalLength'
 lens_category = 'Lens'
 
+focal_length_category_thresehold = 50
+lens_category_thresehold = 7
+
+focal_length_bar_width = 25
+focal_length_bar_spacing = 20
+
+lens_bar_width = 350
+lens_bar_spacing = 150
+
 graph_font = 'Kaiti'
 progress_bar_font = f"{graph_font}, Arial, sans-serif"
 progress_bar_style_sheet = f"""

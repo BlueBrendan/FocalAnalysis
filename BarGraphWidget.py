@@ -1,7 +1,19 @@
 from PyQt6.QtWidgets import QWidget
 from PyQt6.QtGui import QPainter, QColor, QFont, QFontMetrics, QPen, QMouseEvent
 from PyQt6.QtCore import Qt, QRect, QPoint
-from constants import focal_length_category, lens_category, graph_padding_constant, graph_font, default_category_dropdown_selection
+from constants import (
+    focal_length_category, 
+    lens_category, 
+    graph_padding_constant, 
+    graph_font, 
+    default_category_dropdown_selection,
+    focal_length_category_thresehold, 
+    lens_category_thresehold,
+    focal_length_bar_width,
+    focal_length_bar_spacing,
+    lens_bar_width,
+    lens_bar_spacing
+)
 from util import CustomScrollArea, format_focal_length 
 
 class BarGraphWidget(QWidget):
@@ -86,7 +98,7 @@ class BarGraphWidget(QWidget):
             painter.setFont(self.x_axis_font)
             wrapped_text = QFontMetrics(self.x_axis_font).elidedText(category_text, Qt.TextElideMode.ElideNone, category_text_rect.width())
             painter.drawText(category_text_rect, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextWordWrap, wrapped_text )
-        if (self.category == focal_length_category and self.num_categories >= 30) or (self.category == lens_category and self.num_categories >= 7):
+        if (self.category == focal_length_category and self.num_categories > focal_length_category_thresehold) or (self.category == lens_category and self.num_categories > lens_category_thresehold):
             self.setMinimumWidth(self.total_width + (graph_padding_constant * 2))
         else:
             self.setMinimumWidth(0)
@@ -112,21 +124,21 @@ class BarGraphWidget(QWidget):
         if self.category == focal_length_category:
             if self.num_categories == 0:
                 self.bar_width, self.bar_spacing = 0, 0
-            elif self.num_categories < 30:
+            elif self.num_categories <= focal_length_category_thresehold:
                 self.bar_width = total_bar_width / self.num_categories
                 self.bar_spacing = total_bar_space / self.num_categories
             else:
-                self.bar_width = 30
-                self.bar_spacing = 20
+                self.bar_width = focal_length_bar_width
+                self.bar_spacing = focal_length_bar_spacing
         elif self.category == lens_category:
             if self.num_categories == 0:
                 self.bar_width, self.bar_spacing = 0, 0
-            elif self.num_categories < 7:
+            elif self.num_categories < lens_category_thresehold:
                 self.bar_width = int(total_bar_width / self.num_categories)
                 self.bar_spacing = int(total_bar_space / self.num_categories)
             else:
-                self.bar_width = 350
-                self.bar_spacing = 150
+                self.bar_width = lens_bar_width
+                self.bar_spacing = lens_bar_spacing
         self.draw_gridlines(painter)
         self.draw_bars(painter)
         if self.dragging:
@@ -177,11 +189,11 @@ class BarGraphWidget(QWidget):
                 self.lens_distribution_dropdown.setCurrentText(str(selected_category))
             elif self.category == lens_category:
                 self.fl_distribution_dropdown.setCurrentText(selected_category)
-        # else:
-        #     if self.category == focal_length_category:
-        #         self.fl_distribution_dropdown.setCurrentText(default_category_dropdown_selection)
-        #     elif self.category == lens_category:
-        #         self.lens_distribution_dropdown.setCurrentText(default_category_dropdown_selection)
+        else:
+            if self.category == focal_length_category:
+                self.fl_distribution_dropdown.setCurrentText(default_category_dropdown_selection)
+            elif self.category == lens_category:
+                self.lens_distribution_dropdown.setCurrentText(default_category_dropdown_selection)
 
     def wheelEvent(self, event):
         sensitivity_factor = 2

@@ -230,12 +230,12 @@ class MainWindow(QMainWindow):
             self.current_dir_label.setText(f"Current Directory: {self.folderPath}")
             focal_lengths_by_lens_dict.clear()
             lens_by_focal_length_dict.clear()
-            self.progress_bar.setVisible(True)
             # Start the image processing in a separate thread
             self.thread = ImageProcessingThread(self.folderPath)
             self.thread.progress_updated.connect(self.update_progress)
             self.thread.finished.connect(self.on_processing_finished)
             self.thread.start()
+            self.progress_bar.setVisible(True)
 
     def on_processing_finished(self):
         self.progress_bar.setVisible(False)
