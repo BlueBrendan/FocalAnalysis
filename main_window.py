@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QProgressBar, QPushButton, QFileDialog, QLabel, QApplication, QComboBox, QSpacerItem, QSizePolicy
+from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QProgressBar, QPushButton, QFileDialog, QLabel, QComboBox, QSpacerItem, QSizePolicy
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 from constants import (
@@ -22,6 +22,7 @@ from collections import Counter
 class MainWindow(QMainWindow):
     def __init__(self, folder_path):
         super().__init__()
+        self.setWindowTitle("FocalAnalysis")
         main_widget = QWidget()
         self.setCentralWidget(main_widget)
         self.main_layout = QVBoxLayout()

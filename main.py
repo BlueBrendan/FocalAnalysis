@@ -1,6 +1,7 @@
 from PIL import Image
 import sys
 from PyQt6.QtWidgets import QApplication, QFileDialog
+from PyQt6.QtGui import QIcon
 from main_window import MainWindow
 from constants import focal_lengths_by_lens_dict, lens_by_focal_length_dict, folder_path
 from util import ImageProcessingThread
@@ -9,8 +10,10 @@ Image.MAX_IMAGE_PIXELS = 933120000
 
 def main():
     app = QApplication(sys.argv)
+    app.setWindowIcon(QIcon('icon.ico'))
     global folder_path
-    folder_path = QFileDialog.getExistingDirectory(None, "Select Directory", 'E:\\Pictures\\Photos')
+    
+    folder_path = QFileDialog.getExistingDirectory()
     if folder_path:
         window = MainWindow(folder_path)
         window.showMaximized()
