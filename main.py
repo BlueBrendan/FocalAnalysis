@@ -5,16 +5,22 @@ from PyQt6.QtGui import QIcon
 from main_window import MainWindow
 from constants import focal_lengths_by_lens_dict, lens_by_focal_length_dict, folder_path
 from util import ImageProcessingThread
+import os
+import ctypes
 
 Image.MAX_IMAGE_PIXELS = 933120000
 
 def main():
+    myappid = 'focalAnalysis' # arbitrary string
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon('icon.ico'))
+    last_directory = os.path.expanduser("~")
     global folder_path
     
-    folder_path = QFileDialog.getExistingDirectory()
+    folder_path = QFileDialog.getExistingDirectory(None, "Select Directory", last_directory)
     if folder_path:
+        last_directory = folder_path
         window = MainWindow(folder_path)
         window.showMaximized()
         
