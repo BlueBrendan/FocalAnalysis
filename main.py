@@ -14,7 +14,7 @@ def main():
     myappid = 'focalAnalysis' # arbitrary string
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon('icon.ico'))
+    app.setWindowIcon(QIcon('icon128.ico'))
     last_directory = os.path.expanduser("~")
     global folder_path
     
@@ -23,7 +23,6 @@ def main():
         last_directory = folder_path
         window = MainWindow(folder_path)
         window.showMaximized()
-        
         # Start the image analysis in a separate thread
         analysis_thread = ImageProcessingThread(folder_path)
         analysis_thread.progress_updated.connect(window.update_progress)

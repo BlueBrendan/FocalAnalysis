@@ -3,6 +3,8 @@ env/
 venv/
 .vscode/
 build/
+*.spec
+*.exe
 
 # Ignore Python cache directories
 __pycache__/
