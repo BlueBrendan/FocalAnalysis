@@ -7,14 +7,18 @@ from constants import focal_lengths_by_lens_dict, lens_by_focal_length_dict, fol
 from util import ImageProcessingThread
 import os
 import ctypes
+import sys
 
 Image.MAX_IMAGE_PIXELS = 933120000
 
 def main():
-    myappid = 'focalAnalysis' # arbitrary string
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon('icon.ico'))
+    if sys.platform == 'win32':
+        myappid = 'focalAnalysis' # arbitrary string
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+        app.setWindowIcon(QIcon('icon.ico'))
+    elif sys.platform=='darwin':
+        app.setWindowIcon(QIcon('icon.icns'))
     last_directory = os.path.expanduser("~")
     global folder_path
     

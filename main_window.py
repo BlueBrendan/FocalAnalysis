@@ -190,15 +190,15 @@ class MainWindow(QMainWindow):
 
     def change_fl_distribution_ordering_dropdown(self):
         dropdown_selection = self.fl_distribution_ordering_dropdown.currentText()
-        if dropdown_selection == default_focal_length_ordering_dropdown_selection:
-            sorted_pairs = sorted(zip(self.fl_distribution_categories, self.fl_distribution_values))
-            self.fl_distribution_categories, self.fl_distribution_values = zip(*sorted_pairs)
-        elif dropdown_selection == image_count_dropdown_selection:
-            if self.fl_distribution_values and self.fl_distribution_categories:
+        if self.fl_distribution_categories and self.fl_distribution_values:
+            if dropdown_selection == default_focal_length_ordering_dropdown_selection:
+                sorted_pairs = sorted(zip(self.fl_distribution_categories, self.fl_distribution_values))
+                self.fl_distribution_categories, self.fl_distribution_values = zip(*sorted_pairs)
+            elif dropdown_selection == image_count_dropdown_selection:
                 sorted_pairs = sorted(zip(self.fl_distribution_values, self.fl_distribution_categories), reverse=True)
                 self.fl_distribution_values, self.fl_distribution_categories = zip(*sorted_pairs)
-            else:
-                self.fl_distribution_values, self.fl_distribution_categories = zip(*sorted(zip(self.fl_distribution_values, self.fl_distribution_categories), reverse=True)) if self.fl_distribution_values and self.fl_distribution_categories else [], []
+        else:
+            self.fl_distribution_values, self.fl_distribution_categories = [], []
         self.fl_distribution_graph.set_data(self.fl_distribution_categories, self.fl_distribution_values, self.fl_distribution_total_image_count)
         
     def change_lens_distribution_category_dropdown(self):
@@ -219,15 +219,15 @@ class MainWindow(QMainWindow):
 
     def change_lens_distribution_ordering_dropdown(self):
         dropdown_selection = self.lens_distribution_ordering_dropdown.currentText()
-        if dropdown_selection == default_lens_ordering_dropdown_selection:
-            sorted_pairs = sorted(zip(self.lens_distribution_categories, self.lens_distribution_values))
-            self.lens_distribution_categories, self.lens_distribution_values = zip(*sorted_pairs)
-        elif dropdown_selection == image_count_dropdown_selection:
-            if self.lens_distribution_categories and self.lens_distribution_values:
+        if self.lens_distribution_categories and self.lens_distribution_values:
+            if dropdown_selection == default_lens_ordering_dropdown_selection:
+                sorted_pairs = sorted(zip(self.lens_distribution_categories, self.lens_distribution_values))
+                self.lens_distribution_categories, self.lens_distribution_values = zip(*sorted_pairs)
+            elif dropdown_selection == image_count_dropdown_selection:
                 sorted_pairs = sorted(zip(self.lens_distribution_values, self.lens_distribution_categories), reverse=True)
                 self.lens_distribution_values, self.lens_distribution_categories = zip(*sorted_pairs)
-            else:
-                self.lens_distribution_values, self.lens_distribution_categories = [], []
+        else:
+            self.lens_distribution_values, self.lens_distribution_categories = [], []
         self.lens_distribution_graph.set_data(self.lens_distribution_categories, self.lens_distribution_values, self.lens_distribution_total_image_count)
 
     # Modify the change_directory function to include the progress bar

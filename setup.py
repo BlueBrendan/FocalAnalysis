@@ -1,4 +1,5 @@
 from cx_Freeze import setup, Executable
+import sys
 
 main_script = 'main.py'
 icon_path = 'icon.ico'
@@ -12,7 +13,7 @@ build_exe_options = {
 
 executable = Executable(
     script=main_script,
-    base='Win32GUI',
+    base='Win32GUI' if sys.platform == 'win32' else None,
     target_name='FocalAnalysis.exe',
     icon=icon_path
 )
