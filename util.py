@@ -8,7 +8,7 @@ lens_set = set()
 focal_length_set = set()
 
 def format_focal_length(focal_length):
-    if focal_length.is_integer():
+    if isinstance(focal_length, int) or focal_length.is_integer():
         return str(int(focal_length))
     else:
         return f"{focal_length:.1f}"

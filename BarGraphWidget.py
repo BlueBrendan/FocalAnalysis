@@ -26,7 +26,7 @@ class BarGraphWidget(QWidget):
         self.fl_distribution_dropdown = fl_distribution_dropdown
         self.lens_distribution_dropdown = lens_distribution_dropdown
         self.category = category
-        self.setMinimumHeight(400)
+        self.setMinimumHeight(100)
         self.selected_bars = set()
         self.bar_positions = []
         self.selection_rect = QRect()
@@ -52,10 +52,10 @@ class BarGraphWidget(QWidget):
             x = i * (self.bar_width + self.bar_spacing) + graph_padding_constant
             painter.drawLine(int(x), 40, int(x), self.height() - 55)
         # Draw horizontal grid lines
-        num_horizontal_lines = 8
-        increment = self.available_height / (num_horizontal_lines - 1)
+        num_horizontal_lines = 9
+        increment = (self.available_height * 1.1) / (num_horizontal_lines)
         for i in range(num_horizontal_lines):
-            y = int(i * increment)  # Ensure y is an integer
+            y = (self.height() - 55) - int(i * increment)
             painter.drawLine(graph_padding_constant, y, self.available_width + graph_padding_constant, y)
         # Draw the horizontal axis line
         painter.setPen(QPen(QColor(0, 0, 0), 1))
