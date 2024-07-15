@@ -14,7 +14,7 @@ def main():
     myappid = 'focalAnalysis' # arbitrary string
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon('icon128.ico'))
+    app.setWindowIcon(QIcon('icon.ico'))
     last_directory = os.path.expanduser("~")
     global folder_path
     
