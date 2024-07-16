@@ -38,3 +38,5 @@ progress_bar_style_sheet = f"""
     }}
     """
 graph_padding_constant = 25
+graph_scaling_constant = 26
+top_of_bar_constant = 40

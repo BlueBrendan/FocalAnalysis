@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QProgressBar, QPushButton, QFileDialog, QLabel, QComboBox, QSpacerItem, QSizePolicy
+from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QProgressBar, QPushButton, QFileDialog, QLabel, QComboBox, QSpacerItem, QSizePolicy, QApplication
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 from constants import (
@@ -11,7 +11,7 @@ from constants import (
     focal_length_category,
     lens_category,
     graph_font,
-    progress_bar_style_sheet
+    progress_bar_style_sheet,
 )
 from BarGraphWidget import BarGraphWidget
 from util import ImageProcessingThread, CustomScrollArea
@@ -128,7 +128,10 @@ class MainWindow(QMainWindow):
         self.progress_bar = QProgressBar(self)
         self.progress_bar.setRange(0, 100)
         self.progress_bar.setTextVisible(True)
-        self.progress_bar.setFixedHeight(30)
+        screen = QApplication.primaryScreen()
+        screen_size = screen.size()
+        screen_height = screen_size.height()
+        self.progress_bar.setFixedHeight(int(screen_height/48))
         self.progress_bar.setStyleSheet(progress_bar_style_sheet)
         self.progress_bar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.main_layout.addWidget(self.progress_bar)

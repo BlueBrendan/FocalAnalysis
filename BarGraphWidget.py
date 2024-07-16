@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QWidget
+from PyQt6.QtWidgets import QWidget, QApplication
 from PyQt6.QtGui import QPainter, QColor, QFont, QFontMetrics, QPen, QMouseEvent
 from PyQt6.QtCore import Qt, QRect, QPoint
 from constants import (
@@ -12,7 +12,9 @@ from constants import (
     focal_length_bar_width,
     focal_length_bar_spacing,
     lens_bar_width,
-    lens_bar_spacing
+    lens_bar_spacing,
+    graph_scaling_constant,
+    top_of_bar_constant
 )
 from util import CustomScrollArea, format_focal_length 
 
@@ -26,13 +28,15 @@ class BarGraphWidget(QWidget):
         self.fl_distribution_dropdown = fl_distribution_dropdown
         self.lens_distribution_dropdown = lens_distribution_dropdown
         self.category = category
-        self.setMinimumHeight(100)
+        self.setMinimumHeight(180)
         self.selected_bars = set()
         self.bar_positions = []
         self.selection_rect = QRect()
         self.drag_start = QPoint()
         self.dragging = False
         self.total_selected_percentage = 0
+        self.top_graph_height = int((QApplication.primaryScreen().size().height())/graph_scaling_constant)
+        print(self.top_graph_height)
 
     def set_data(self, categories, values, total_image_count):
         self.categories = categories
@@ -45,32 +49,33 @@ class BarGraphWidget(QWidget):
         self.update()
 
     def draw_gridlines(self, painter):
+        y_position_x_axis = self.height() - self.top_graph_height
         # Draw vertical grid lines
         grid_pen = QPen(QColor(200, 200, 200), 0.5, Qt.PenStyle.SolidLine)
         painter.setPen(grid_pen)
         for i in range(1, self.num_categories):
             x = i * (self.bar_width + self.bar_spacing) + graph_padding_constant
-            painter.drawLine(int(x), 40, int(x), self.height() - 55)
+            painter.drawLine(int(x), top_of_bar_constant, int(x), y_position_x_axis) # x1, y1, x2, y2
         # Draw horizontal grid lines
         num_horizontal_lines = 9
         increment = (self.available_height * 1.1) / (num_horizontal_lines)
-        for i in range(num_horizontal_lines):
-            y = (self.height() - 55) - int(i * increment)
+        for i in range(1,num_horizontal_lines):
+            y = y_position_x_axis - int(i * increment)
             painter.drawLine(graph_padding_constant, y, self.available_width + graph_padding_constant, y)
         # Draw the horizontal axis line
         painter.setPen(QPen(QColor(0, 0, 0), 1))
-        x_axis_y = self.height() - 55  # Same as y offset used for bars
-        painter.drawLine(graph_padding_constant, x_axis_y, self.available_width + graph_padding_constant, x_axis_y)
+        
+        painter.drawLine(graph_padding_constant, y_position_x_axis, self.available_width + graph_padding_constant, y_position_x_axis)
         # Draw the vertical axis line
-        painter.drawLine(graph_padding_constant, x_axis_y, graph_padding_constant, 40)
+        painter.drawLine(graph_padding_constant, top_of_bar_constant, graph_padding_constant, y_position_x_axis)
 
-    def draw_bars(self, painter):
+    def draw_bars(self, painter, top_of_bar_constant):
         for i, value in enumerate(self.values):
             x = i * (self.bar_width + self.bar_spacing) + graph_padding_constant + (self.bar_spacing/2)
             height = int(value * self.height_scaling)
             if height > self.available_height:
                 height = self.available_height  # Cap the height at the available space
-            y = self.height() - height - 55  # Offset bars upwards
+            y = self.height() - height - self.top_graph_height  # Offset bars upwards
             self.total_width += self.bar_width
             self.total_width += self.bar_spacing
 
@@ -94,7 +99,7 @@ class BarGraphWidget(QWidget):
 
             # Label category at x-axis
             category_text = format_focal_length(self.categories[i]) if isinstance(self.categories[i], int) or isinstance(self.categories[i], float) else self.categories[i]
-            category_text_rect = QRect(int(x-graph_padding_constant), self.height() - 50, int(self.bar_width + (graph_padding_constant * 2)), 40)
+            category_text_rect = QRect(int(x-graph_padding_constant), self.height() - self.top_graph_height + 5, int(self.bar_width + (graph_padding_constant * 2)), top_of_bar_constant)
             painter.setFont(self.x_axis_font)
             wrapped_text = QFontMetrics(self.x_axis_font).elidedText(category_text, Qt.TextElideMode.ElideNone, category_text_rect.width())
             painter.drawText(category_text_rect, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextWordWrap, wrapped_text )
@@ -140,7 +145,7 @@ class BarGraphWidget(QWidget):
                 self.bar_width = lens_bar_width
                 self.bar_spacing = lens_bar_spacing
         self.draw_gridlines(painter)
-        self.draw_bars(painter)
+        self.draw_bars(painter, top_of_bar_constant)
         if self.dragging:
             painter.setBrush(QColor(200, 200, 200, 100))
             painter.drawRect(self.selection_rect)
